@@ -16,9 +16,18 @@ public class MainFrame {
 
         //lists
         JTextPane ingredientList = new JTextPane();
+        JTextPane recipeList = new JTextPane();
 
         //Scrollbars
         JScrollPane ingredientListScroll = new JScrollPane(ingredientList);
+        JScrollPane recipeListScroll = new JScrollPane(recipeList);
+
+        //Buttons
+        //add images to buttons later
+        JButton addIngredientBtn = new JButton("Add ingredient");
+        JButton addRecipeBtn = new JButton("Add Recipe");
+        JButton exitBtn = new JButton("Exit");
+        JButton startBtn = new JButton("Start");
 
         //essential frame display stuff
         frame.setResizable(false);
@@ -29,12 +38,49 @@ public class MainFrame {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
+        //Component Listeners
+        addIngredientBtn.addActionListener(e -> userAddIngredient());
+        exitBtn.addActionListener(e -> userClickedExit(frame));
+        addRecipeBtn.addActionListener(e -> userAddRecipe());
+        startBtn.addActionListener(e -> userClickedStart());
+
         //Setting component positions
         ingredientListScroll.setBounds(40, 40, 300, 500);
+        addIngredientBtn.setBounds(90, 550, 200, 25);
+        exitBtn.setBounds(525, 600, 125, 25);
+        recipeListScroll.setBounds(850, 40, 300, 500);
+        addRecipeBtn.setBounds(900, 550, 200, 25);
 
         //adding components to the frame
         frame.add(panel);
         panel.add(ingredientListScroll);
+        panel.add(addIngredientBtn);
+        panel.add(exitBtn);
+        panel.add(recipeListScroll);
+        panel.add(addRecipeBtn);
         frame.setVisible(true);
+    }
+    private void userAddIngredient()
+    {
+        //access database and ask user what ingredient to add.
+    }
+    private void userClickedExit(JFrame frame)
+    {
+        //popup window asking user to confirm exit
+        //if user clicks yes, exit program.
+        int ans = JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "WARNING", JOptionPane.YES_NO_OPTION);
+        if (ans == JOptionPane.YES_OPTION) 
+        {
+            frame.dispose();
+            System.exit(0);
+        }
+    }
+    private void userAddRecipe()
+    {
+        //access database and ask user what recipe to add.
+    }
+    private void userClickedStart()
+    {
+        //not sure yet
     }
 }
