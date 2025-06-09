@@ -50,6 +50,7 @@ public class MainFrame {
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
         addRecipeBtn.setBounds(900, 550, 200, 25);
+        startBtn.setBounds(512, 560, 150, 30);
 
         //adding components to the frame
         frame.add(panel);
@@ -58,6 +59,7 @@ public class MainFrame {
         panel.add(exitBtn);
         panel.add(recipeListScroll);
         panel.add(addRecipeBtn);
+        panel.add(startBtn);
         frame.setVisible(true);
     }
     private void userAddIngredient()
