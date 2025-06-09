@@ -1,7 +1,15 @@
 import javax.swing.*;
 
+/* Script created by Nigel Garcia
+ * June 9 2025
+ * MainFrame
+ * Where all the front end events and inputs happen
+ */
+
 public class MainFrame {
-    public static void main(String[] args) throws Exception {
+    //This Method displays the Frame
+    //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
+    public void DisplayMainFrame() throws Exception {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
 
