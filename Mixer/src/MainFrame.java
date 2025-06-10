@@ -36,6 +36,10 @@ public class MainFrame {
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("Start");
 
+        //uneditable
+        ingredientList.setEditable(false);
+        recipeList.setEditable(false);
+
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
 
