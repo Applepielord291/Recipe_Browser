@@ -1,5 +1,5 @@
 import javax.swing.*;
-//import java.sql.*;
+import java.sql.*;
 
 /* Script created by Nigel Garcia
  * June 9 2025
@@ -8,6 +8,9 @@ import javax.swing.*;
  */
 
 public class MainFrame {
+    //dont forget to change this value to the actual path oncethe database is setup
+    private final String dbUrl = null;
+
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
     public void DisplayMainFrame() throws Exception {
@@ -32,6 +35,11 @@ public class MainFrame {
 
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
+
+        //Functions
+        Connection connection = initConnection();
+        reloadRecipes();
+        reloadIngredients();
 
         //essential frame display stuff
         frame.setResizable(false);
@@ -71,6 +79,7 @@ public class MainFrame {
     private void userAddIngredient()
     {
         //access database and ask user what ingredient to add.
+        //after that, reload ingredient and recipe list
     }
     private void userClickedExit(JFrame frame)
     {
@@ -86,15 +95,27 @@ public class MainFrame {
     private void userAddRecipe()
     {
         //access database and ask user what recipe to add.
+        //after that, reload recipe list
     }
     private void userClickedStart()
     {
-        //not sure yet
+        //Nothing right now
     }
-    //UNCOMMENT THIS FUNCTION WHEN THE DATABASES ARE FINISHED
     //this will be used to initialize the connection for databases
-    /*private Connection initConnection()
+    private Connection initConnection()
     {
-
-    }*/
+        return null;
+    }
+    //used to reload the recipe list
+    //call this function whenever user makes changes to ingredients
+    private void reloadRecipes()
+    {
+        //Nothing right now
+    }
+    //used to reload the Ingredient List
+    //call this function whenever user makes changes to ingredients
+    private void reloadIngredients()
+    {
+        //Nothing right now
+    }
 }
