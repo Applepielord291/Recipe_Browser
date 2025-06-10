@@ -18,6 +18,9 @@ public class MainFrame {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
 
+        //hide frame window
+        frame.setUndecorated(true);
+
         //lists
         JTextPane ingredientList = new JTextPane();
         JTextPane recipeList = new JTextPane();

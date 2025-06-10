@@ -4,6 +4,8 @@
  * The main script, RUN THIS SCRIPT TO RUN THE PROGRAM
  */
 
+ //Edit: This script may be redundant, however ill keep it just in case.
+
 public class Main {
     public static void main(String[] args) throws Exception {
         //Display MainFrame instance
