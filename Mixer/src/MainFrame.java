@@ -22,6 +22,7 @@ public class MainFrame {
         frame.setUndecorated(true);
 
         //lists
+        //These are where the checkboxes will be placed
         JTextPane ingredientList = new JTextPane();
         JTextPane recipeList = new JTextPane();
 
