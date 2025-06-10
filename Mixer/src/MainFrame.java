@@ -1,4 +1,5 @@
 import javax.swing.*;
+//import java.sql.*;
 
 /* Script created by Nigel Garcia
  * June 9 2025
@@ -29,6 +30,9 @@ public class MainFrame {
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("Start");
 
+        //Labels
+        JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
+
         //essential frame display stuff
         frame.setResizable(false);
         frame.setSize(1200, 700);
@@ -51,6 +55,7 @@ public class MainFrame {
         recipeListScroll.setBounds(850, 40, 300, 500);
         addRecipeBtn.setBounds(900, 550, 200, 25);
         startBtn.setBounds(512, 560, 150, 30);
+        bgAnim.setBounds(0, 0, 1200, 700);
 
         //adding components to the frame
         frame.add(panel);
@@ -60,6 +65,7 @@ public class MainFrame {
         panel.add(recipeListScroll);
         panel.add(addRecipeBtn);
         panel.add(startBtn);
+        panel.add(bgAnim);
         frame.setVisible(true);
     }
     private void userAddIngredient()
@@ -85,4 +91,10 @@ public class MainFrame {
     {
         //not sure yet
     }
+    //UNCOMMENT THIS FUNCTION WHEN THE DATABASES ARE FINISHED
+    //this will be used to initialize the connection for databases
+    /*private Connection initConnection()
+    {
+
+    }*/
 }
