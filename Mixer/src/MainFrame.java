@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class MainFrame {
     //dont forget to change this value to the actual path once the database is setup
     private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
-    private JButton[] ingredientListBtn = new JButton[40]; //have arraysize change depending on database elements
+    private JButton[] ingredientListBtn = null; //have arraysize change depending on database elements
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -54,14 +54,14 @@ public class MainFrame {
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("Start");
 
-        
-
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
 
         //Functions
         Connection connection = initConnection();
-        reloadRecipes(connection);
+        int ingredientBtnCount = reloadRecipes(connection);
+        //initialize button list
+        ingredientListBtn = new JButton[ingredientBtnCount+1];
 
         //essential frame display stuff
         frame.setResizable(false);
@@ -80,7 +80,7 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         addRecipeBtn.addActionListener(e -> userAddRecipe());
         //startBtn.addActionListener(e -> userClickedStart());
-        startBtn.addActionListener(e -> rotateComponents(panel, bgAnim, ingredientListBtn));
+        startBtn.addActionListener(e -> rotateComponents(panel, bgAnim, ingredientListBtn, connection));
         sb.addAdjustmentListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
@@ -89,16 +89,14 @@ public class MainFrame {
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
         addRecipeBtn.setBounds(900, 550, 200, 25);
-        startBtn.setBounds(512, 0, 150, 30);
+        startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(400, 300, 35, 300);
 
         //adding components to the frame
         frame.add(panel);
-        //panel.add(ingredientListScroll);
         panel.add(addIngredientBtn);
         panel.add(exitBtn);
-        //panel.add(recipeListScroll);
         panel.add(addRecipeBtn);
         panel.add(startBtn);
         reloadIngredients(ingredientList);
@@ -107,9 +105,9 @@ public class MainFrame {
         panel.add(bgAnim);
         frame.setVisible(true);
     }
-    private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn)
+    private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn)
     {
-        Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn));
+        Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn,conn));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
@@ -149,14 +147,6 @@ public class MainFrame {
         //this is used for Connecting the database into the program
         try {
             Connection Connect = DriverManager.getConnection(dbUrl);
-            Statement S = Connect.createStatement();
-            S.execute("SELECT * FROM Ingredients");
-            ResultSet Rs = S.getResultSet();
-            while (Rs!=null && Rs.next())
-            {
-                System.out.println(Rs.getString(1)+ " " + Rs.getString(2));
-            }
-            
             return Connect;
         }
         catch (SQLException e){
@@ -166,9 +156,25 @@ public class MainFrame {
     }
     //used to reload the recipe list
     //call this function whenever user makes changes to ingredients
-    private void reloadRecipes(Connection conn)
+    private int reloadRecipes(Connection conn)
     {
-
+        try
+        {
+            int total = 0;
+            Statement s = conn.createStatement();
+            s.execute("SELECT * FROM Ingredients");
+            ResultSet rs = s.getResultSet();
+            while (rs!=null && rs.next())
+            {
+                total = Integer.parseInt(rs.getString(1));
+            }
+            return total;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return 0;
+        }
     }
     //used to reload the Ingredient List
     //call this function whenever user makes changes to ingredients
@@ -187,7 +193,6 @@ public class MainFrame {
 }
 class scrollListener implements AdjustmentListener
 {
-    private int angle = 2;
     private JButton[] ingredBtn = null;
     int j = 0;
     int offset = 50;
@@ -226,14 +231,16 @@ class ButtonRotation implements ActionListener
     JButton[] ingredBtn = null;
     private JPanel ingredientList = null;
     private JLabel bgAnim = null;
+    Connection connection = null;
     int i = 0;
     int j = 0;
     int offset = 50;
-    public ButtonRotation(JPanel ingredList, JLabel bg, JButton[] ingredientBtn)
+    public ButtonRotation(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn)
     {
         ingredientList = ingredList;
         bgAnim = bg;
         ingredBtn = ingredientBtn;
+        connection = conn;
     }
     MainFrame mainFrame = new MainFrame();
     int angle = 0;
@@ -244,16 +251,29 @@ class ButtonRotation implements ActionListener
         if (i < ingredBtn.length-1)
         {
             ingredientList.remove(bgAnim);
-            ingredBtn[i] = new JButton("Test!");
-            ingredBtn[i].setBounds((-offset/5) + 100, offset - 150, 300, 35);
-            ingredientList.add(ingredBtn[i]);
-            ingredientList.revalidate();
-            ingredientList.repaint();
-            i++;
-            offset += 50;
-            ingredientList.add(bgAnim);
-            ingredientList.revalidate();
-            ingredientList.repaint();
+            try
+            {
+                Statement s = connection.createStatement();
+                s.execute("SELECT IngredientName FROM Ingredients" + " WHERE IngredientID = 3");
+                ResultSet rs = s.getResultSet();
+                if (rs.next())
+                {
+                    ingredBtn[i] = new JButton(rs.getString("IngredientName"));
+                }
+                ingredBtn[i].setBounds((-offset/5) + 100, offset - 150, 300, 35);
+                ingredientList.add(ingredBtn[i]);
+                ingredientList.revalidate();
+                ingredientList.repaint();
+                i++;
+                offset += 50;
+                ingredientList.add(bgAnim);
+                ingredientList.revalidate();
+                ingredientList.repaint();
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
         }
         
     }
