@@ -1,4 +1,7 @@
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+
+import java.awt.*;
 import java.sql.*;
 
 /* Script created by Nigel Garcia
@@ -8,8 +11,8 @@ import java.sql.*;
  */
 
 public class MainFrame {
-    //dont forget to change this value to the actual path oncethe database is setup
-    private final String dbUrl = null;
+    //dont forget to change this value to the actual path once the database is setup
+    private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -23,12 +26,16 @@ public class MainFrame {
 
         //lists
         //These are where the checkboxes will be placed
-        JTextPane ingredientList = new JTextPane();
-        JTextPane recipeList = new JTextPane();
+        JPanel ingredientList = new JPanel();
+        JPanel recipeList = new JPanel();
 
-        //Scrollbars
+        //ScrollPanes
         JScrollPane ingredientListScroll = new JScrollPane(ingredientList);
         JScrollPane recipeListScroll = new JScrollPane(recipeList);
+
+        //ScrollBars
+        JScrollBar ingredScrollBar = ingredientListScroll.getVerticalScrollBar();
+        ingredScrollBar.setUI(new ScrollBarVisual());
 
         //Buttons
         //add images to buttons later
@@ -37,23 +44,20 @@ public class MainFrame {
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("Start");
 
-        //uneditable
-        ingredientList.setEditable(false);
-        recipeList.setEditable(false);
-
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
 
         //Functions
         Connection connection = initConnection();
-        reloadRecipes();
-        reloadIngredients();
+        reloadRecipes(connection);
 
         //essential frame display stuff
         frame.setResizable(false);
         frame.setSize(1200, 700);
         frame.setLocationRelativeTo(null);
         panel.setLayout(null);
+        ingredientList.setLayout(new BoxLayout(ingredientList, BoxLayout.Y_AXIS));
+        recipeList.setLayout(null);
         panel.setSize(1200, 700);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("The Cooking Station");
@@ -81,6 +85,9 @@ public class MainFrame {
         panel.add(recipeListScroll);
         panel.add(addRecipeBtn);
         panel.add(startBtn);
+        reloadIngredients(ingredientList);
+        
+
         panel.add(bgAnim);
         frame.setVisible(true);
     }
@@ -116,14 +123,67 @@ public class MainFrame {
     }
     //used to reload the recipe list
     //call this function whenever user makes changes to ingredients
-    private void reloadRecipes()
+    private void reloadRecipes(Connection conn)
     {
-        //Nothing right now
+
     }
     //used to reload the Ingredient List
     //call this function whenever user makes changes to ingredients
-    private void reloadIngredients()
+    private void reloadIngredients(JPanel ingredientList)
     {
-        //Nothing right now
+        JButton[] ingredBtn = new JButton[40];
+        for (int i = 0; i < ingredBtn.length; i++)
+        {
+            ingredBtn[i] = new JButton("Test!");
+            ingredBtn[i].setMaximumSize(new Dimension(500, 65));
+            ingredientList.add(ingredBtn[i]);
+            ingredientList.revalidate();
+            ingredientList.repaint();
+        }
+    }
+}
+class ScrollBarVisual extends BasicScrollBarUI
+{
+    @Override
+    protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds)
+    {
+        
+    }
+
+    @Override
+    protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds)
+    {
+        Graphics2D g2 = (Graphics2D)g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Color color = null;
+        JScrollBar scrollBar = (JScrollBar)c;
+        if (!scrollBar.isEnabled() || thumbBounds.width > thumbBounds.height)
+        {
+            return;
+        }
+        else if (isDragging)
+        {
+            color = Color.DARK_GRAY;
+        }
+        else if (isThumbRollover())
+        {
+            color = Color.LIGHT_GRAY;
+        }
+        else
+        {
+            color = Color.GRAY;
+        }
+        g2.setPaint(color);
+        g2.fillRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+        g2.setPaint(Color.WHITE);
+        g2.drawRoundRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height, 10, 10);
+        g2.dispose();
+    }
+
+    @Override
+    protected void setThumbBounds(int x, int y, int width, int height)
+    {
+        super.setThumbBounds(x, y, width, height);
+        scrollbar.repaint();
     }
 }
