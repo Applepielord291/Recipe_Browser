@@ -145,7 +145,24 @@ public class MainFrame {
     //this will be used to initialize the connection for databases
     private Connection initConnection()
     {
-        return null;
+        // Function made by Shannon Duldulao
+        //this is used for Connecting the database into the program
+        try {
+            Connection Connect = DriverManager.getConnection(dbUrl);
+            Statement S = Connect.createStatement();
+            S.execute("SELECT * FROM Ingredients");
+            ResultSet Rs = S.getResultSet();
+            while (Rs!=null && Rs.next())
+            {
+                System.out.println(Rs.getString(1)+ " " + Rs.getString(2));
+            }
+            
+            return Connect;
+        }
+        catch (SQLException e){
+            System.out.println(e);
+            return null;
+        }
     }
     //used to reload the recipe list
     //call this function whenever user makes changes to ingredients
