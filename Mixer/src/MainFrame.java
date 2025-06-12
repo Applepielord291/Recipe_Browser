@@ -23,6 +23,7 @@ public class MainFrame {
     //dont forget to change this value to the actual path once the database is setup
     private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
     private JButton[] ingredientListBtn = null; //have arraysize change depending on database elements
+    private int x = -500; private int y = 1000; //for ingredList
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -66,11 +67,12 @@ public class MainFrame {
         Connection connection = initConnection();
         int ingredientBtnCount = reloadRecipes(connection);
         //initialize button list
-        ingredientListBtn = new JButton[40];
+        ingredientListBtn = new JButton[ingredientBtnCount+1];
         sb.setMaximum(ingredientBtnCount * 10);
         BufferedImage bgList1 = rotateAnimateList(b, 9);
         JLabel dawd = new JLabel(new ImageIcon(bgList1));
-        dawd.setBounds(-90, -95, bgList1.getWidth(), bgList1.getHeight());
+        dawd.setBounds(x, y, bgList1.getWidth(), bgList1.getHeight());
+        //desired position is -90, -95
 
         //essential frame display stuff
         frame.setResizable(false);
@@ -88,19 +90,18 @@ public class MainFrame {
         addIngredientBtn.addActionListener(e -> userAddIngredient());
         exitBtn.addActionListener(e -> userClickedExit(frame));
         addRecipeBtn.addActionListener(e -> userAddRecipe());
-        //startBtn.addActionListener(e -> userClickedStart());
-        startBtn.addActionListener(e -> rotateComponents(panel, bgAnim, ingredientListBtn, connection, panel, dawd));
+        startBtn.addActionListener(e -> userClickedStart());
         sb.addAdjustmentListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
         ingredientListScroll.setBounds(40, 40, 300, 500);
-        addIngredientBtn.setBounds(90, 550, 200, 25);
+        addIngredientBtn.setBounds(550, 550, 200, 25);
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
         addRecipeBtn.setBounds(900, 550, 200, 25);
         startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
-        sb.setBounds(400, 300, 35, 300);
+        sb.setBounds(400, 300, 35, 25);
 
         //adding components to the frame
         
@@ -116,18 +117,46 @@ public class MainFrame {
         
         panel.add(bgAnim);
         frame.setVisible(true);
+        
+        //list backgound initial animation
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        while (x < -90 || y > -95)
+        {
+            if (x < -90) x = 1 + dawd.getBounds().x;
+            else if (y > -95) y = dawd.getBounds().y - 1;
+            
+            scheduledExecutorService.schedule(() -> {
+                dawd.setBounds(x, y, dawd.getWidth(), dawd.getHeight());
+                
+            }, 1, TimeUnit.SECONDS);
+            if (x >= -90 && y <= -95)
+            {
+                scheduledExecutorService.shutdown();
+            }
+        }
+        
+        rotateComponents(panel, bgAnim, ingredientListBtn, connection, panel, dawd);
+        Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn));
+        iBtnListInit.start();
+        ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService2.schedule(() -> {
+            System.out.println("real?");
+            iBtnListInit.stop();
+            scheduledExecutorService2.shutdown();
+        }, 375, TimeUnit.MILLISECONDS);
+        
     }
     private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn, JPanel panel, JLabel listBg)
     {
-        panel.remove(listBg);
+        
         Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn, conn, panel, listBg));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
+            panel.remove(listBg);
             panel.remove(bgAnim);
             panel.add(listBg);
             panel.add(bgAnim);
-            System.out.println("Finally free");
             timer.stop();
         }, 1, TimeUnit.SECONDS);
         scheduledExecutorService.shutdown();
@@ -302,22 +331,23 @@ class ButtonRotation implements ActionListener
             ingredientList.remove(bgAnim);
             try
             {
-                Statement s = connection.createStatement();
-                s.execute("SELECT IngredientName FROM Ingredients" + " WHERE IngredientID = 3");
-                ResultSet rs = s.getResultSet();
+                String command = "SELECT * FROM Ingredients WHERE IngredientID = ?";
+
+                PreparedStatement ps = connection.prepareStatement(command);
+                ps.setInt(1, i+1);
+                ResultSet rs = ps.executeQuery();
+                
                 if (rs.next())
                 {
                     ingredBtn[i] = new JButton(rs.getString("IngredientName"));
+                    ingredBtn[i].setBounds((-offset/5) + 40, offset - 150, 300, 35);
+                    ingredientList.add(ingredBtn[i]);
+                    i++;
+                    offset += 50;
+                    ingredientList.add(bgAnim);
+                    ingredientList.revalidate();
+                    ingredientList.repaint();
                 }
-                ingredBtn[i].setBounds((-offset/5) + 100, offset - 150, 300, 35);
-                ingredientList.add(ingredBtn[i]);
-                ingredientList.revalidate();
-                ingredientList.repaint();
-                i++;
-                offset += 50;
-                ingredientList.add(bgAnim);
-                ingredientList.revalidate();
-                ingredientList.repaint();
             }
             catch (SQLException e)
             {
@@ -329,6 +359,22 @@ class ButtonRotation implements ActionListener
             panel.remove(bgAnim);
             panel.add(listBg);
             panel.add(bgAnim);
+        }
+    }
+}
+class ButtonInit implements ActionListener
+{
+    private JButton[] btn;
+    public ButtonInit(JButton[] btnList)
+    {
+        btn = btnList;
+    }
+    @Override
+    public void actionPerformed(ActionEvent arg0)
+    {
+        for (int i = 0; i < btn.length && btn[i] != null; i++)
+        {
+            btn[i].setBounds(5 + btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
         }
     }
 }
