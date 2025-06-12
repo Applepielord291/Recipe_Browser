@@ -54,7 +54,7 @@ public class MainFrame {
         JButton addIngredientBtn = new JButton("Add ingredient");
         JButton addRecipeBtn = new JButton("Add Recipe");
         JButton exitBtn = new JButton("Exit");
-        JButton startBtn = new JButton("Start");
+        JButton startBtn = new JButton("More Information");
 
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
@@ -95,13 +95,13 @@ public class MainFrame {
 
         //Setting component positions
         ingredientListScroll.setBounds(40, 40, 300, 500);
-        addIngredientBtn.setBounds(550, 550, 200, 25);
+        addIngredientBtn.setBounds(300, 650, 200, 25);
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
-        addRecipeBtn.setBounds(900, 550, 200, 25);
+        addRecipeBtn.setBounds(300, 620, 200, 25);
         startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
-        sb.setBounds(400, 300, 35, 25);
+        sb.setBounds(350, 300, 50, 25);
 
         //adding components to the frame
         
@@ -135,21 +135,20 @@ public class MainFrame {
             }
         }
         
-        rotateComponents(panel, bgAnim, ingredientListBtn, connection, panel, dawd);
+        DisplayBtns(panel, bgAnim, ingredientListBtn, connection, dawd);
         Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn));
         iBtnListInit.start();
         ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
         scheduledExecutorService2.schedule(() -> {
-            System.out.println("real?");
             iBtnListInit.stop();
             scheduledExecutorService2.shutdown();
         }, 375, TimeUnit.MILLISECONDS);
         
     }
-    private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn, JPanel panel, JLabel listBg)
+    private void DisplayBtns(JPanel panel, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn, JLabel listBg)
     {
         
-        Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn, conn, panel, listBg));
+        Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, ingredientListBtn, conn, listBg));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
@@ -193,6 +192,8 @@ public class MainFrame {
     {
         //access database and ask user what ingredient to add.
         //after that, reload ingredient and recipe list
+        UserInputFrame inputFrame = new UserInputFrame();
+        inputFrame.userDisplayFrame();
     }
     private void userClickedExit(JFrame frame)
     {
@@ -285,7 +286,7 @@ class scrollListener implements AdjustmentListener
             for (int j = 0; j < ingredBtn.length && ingredBtn[j] != null; j++)
             {
                 current = e.getValue();
-                ingredBtn[j].setBounds(2 + ingredBtn[j].getBounds().x, ingredBtn[j].getBounds().y - 10, 300, 35);
+                ingredBtn[j].setBounds(4 + ingredBtn[j].getBounds().x, ingredBtn[j].getBounds().y - 20, 300, 35);
                 offset += 50;
             }
         }
@@ -294,30 +295,27 @@ class scrollListener implements AdjustmentListener
             for (int j = 0; j < ingredBtn.length && ingredBtn[j] != null; j++)
             {
                 current = e.getValue();
-                ingredBtn[j].setBounds(-2 + ingredBtn[j].getBounds().x, 10 + ingredBtn[j].getBounds().y, 300, 35);
+                ingredBtn[j].setBounds(-4 + ingredBtn[j].getBounds().x, 20 + ingredBtn[j].getBounds().y, 300, 35);
                 offset += 50;
             }
         }
     }
 }
-class ButtonRotation implements ActionListener
+class AddButtons implements ActionListener
 {
-    JButton[] ingredBtn = null;
-    private JPanel ingredientList = null;
+    private JButton[] ingredBtn = null;
+    private JPanel panel = null;
     private JLabel bgAnim = null;
-    Connection connection = null;
-    JPanel panel = null;
-    JLabel listBg = null;
-    int i = 0;
-    int j = 0;
-    int offset = 50;
-    public ButtonRotation(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JPanel pan, JLabel listB)
+    private Connection connection = null;
+    private JLabel listBg = null;
+    private int i = 0;
+    private int offset = 50;
+    public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB)
     {
-        ingredientList = ingredList;
+        panel = ingredList;
         bgAnim = bg;
         ingredBtn = ingredientBtn;
         connection = conn;
-        panel = pan;
         listBg = listB;
     }
     MainFrame mainFrame = new MainFrame();
@@ -328,7 +326,7 @@ class ButtonRotation implements ActionListener
         
         if (i < ingredBtn.length-1)
         {
-            ingredientList.remove(bgAnim);
+            panel.remove(bgAnim);
             try
             {
                 String command = "SELECT * FROM Ingredients WHERE IngredientID = ?";
@@ -341,12 +339,12 @@ class ButtonRotation implements ActionListener
                 {
                     ingredBtn[i] = new JButton(rs.getString("IngredientName"));
                     ingredBtn[i].setBounds((-offset/5) + 40, offset - 150, 300, 35);
-                    ingredientList.add(ingredBtn[i]);
+                    panel.add(ingredBtn[i]);
                     i++;
                     offset += 50;
-                    ingredientList.add(bgAnim);
-                    ingredientList.revalidate();
-                    ingredientList.repaint();
+                    panel.add(bgAnim);
+                    panel.revalidate();
+                    panel.repaint();
                 }
             }
             catch (SQLException e)
