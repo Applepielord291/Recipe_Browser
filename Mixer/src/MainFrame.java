@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.sql.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -57,11 +58,19 @@ public class MainFrame {
         //Labels
         JLabel bgAnim = new JLabel(new ImageIcon("Mixer\\Graphics\\Background\\MainFramebackGround.gif"));
 
+        //Images
+        ImageIcon bgList = new ImageIcon("Mixer\\Graphics\\Background\\ListBg.png");
+        BufferedImage b = new BufferedImage(bgList.getIconWidth(), bgList.getIconHeight(), BufferedImage.TYPE_INT_RGB);
+        
         //Functions
         Connection connection = initConnection();
         int ingredientBtnCount = reloadRecipes(connection);
         //initialize button list
-        ingredientListBtn = new JButton[ingredientBtnCount+1];
+        ingredientListBtn = new JButton[40];
+        sb.setMaximum(ingredientBtnCount * 10);
+        BufferedImage bgList1 = rotateAnimateList(b, 9);
+        JLabel dawd = new JLabel(new ImageIcon(bgList1));
+        dawd.setBounds(-90, -95, bgList1.getWidth(), bgList1.getHeight());
 
         //essential frame display stuff
         frame.setResizable(false);
@@ -80,7 +89,7 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         addRecipeBtn.addActionListener(e -> userAddRecipe());
         //startBtn.addActionListener(e -> userClickedStart());
-        startBtn.addActionListener(e -> rotateComponents(panel, bgAnim, ingredientListBtn, connection));
+        startBtn.addActionListener(e -> rotateComponents(panel, bgAnim, ingredientListBtn, connection, panel, dawd));
         sb.addAdjustmentListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
@@ -94,26 +103,62 @@ public class MainFrame {
         sb.setBounds(400, 300, 35, 300);
 
         //adding components to the frame
+        
+        
         frame.add(panel);
+        panel.add(dawd);
         panel.add(addIngredientBtn);
         panel.add(exitBtn);
         panel.add(addRecipeBtn);
         panel.add(startBtn);
         reloadIngredients(ingredientList);
         panel.add(sb);
-
+        
         panel.add(bgAnim);
         frame.setVisible(true);
     }
-    private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn)
+    private void rotateComponents(JPanel ingredientList, JLabel bgAnim, JButton[] ingredientListBtn, Connection conn, JPanel panel, JLabel listBg)
     {
-        Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn,conn));
+        panel.remove(listBg);
+        Timer timer = new Timer(1/10000, new ButtonRotation(ingredientList, bgAnim, ingredientListBtn, conn, panel, listBg));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
+            panel.remove(bgAnim);
+            panel.add(listBg);
+            panel.add(bgAnim);
+            System.out.println("Finally free");
             timer.stop();
         }, 1, TimeUnit.SECONDS);
         scheduledExecutorService.shutdown();
+        listBg.revalidate();
+        listBg.repaint();
+    }
+    private BufferedImage rotateAnimateList(BufferedImage image, int degrees)
+    {
+        
+        // Calculate the new size of the image based on the angle of rotaion
+        double radians = Math.toRadians(degrees);
+        double sin = Math.abs(Math.sin(radians));
+        double cos = Math.abs(Math.cos(radians));
+        int newWidth = (int) Math.round(image.getWidth() * cos + image.getHeight() * sin);
+        int newHeight = (int) Math.round(image.getWidth() * sin + image.getHeight() * cos);
+
+        // Create a new image
+        BufferedImage rotate = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = rotate.createGraphics();
+        // Calculate the "anchor" point around which the image will be rotated
+        int x = (newWidth - image.getWidth()) / 2;
+        int y = (newHeight - image.getHeight()) / 2;
+        // Transform the origin point around the anchor point
+        AffineTransform at = new AffineTransform();
+        at.setToRotation(radians, x + (image.getWidth() / 2), y + (image.getHeight() / 2));
+        at.translate(x, y);
+        g2d.setTransform(at);
+        // Paint the originl image
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+        return rotate;
     }
     private void userAddIngredient()
     {
@@ -232,15 +277,19 @@ class ButtonRotation implements ActionListener
     private JPanel ingredientList = null;
     private JLabel bgAnim = null;
     Connection connection = null;
+    JPanel panel = null;
+    JLabel listBg = null;
     int i = 0;
     int j = 0;
     int offset = 50;
-    public ButtonRotation(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn)
+    public ButtonRotation(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JPanel pan, JLabel listB)
     {
         ingredientList = ingredList;
         bgAnim = bg;
         ingredBtn = ingredientBtn;
         connection = conn;
+        panel = pan;
+        listBg = listB;
     }
     MainFrame mainFrame = new MainFrame();
     int angle = 0;
@@ -275,7 +324,12 @@ class ButtonRotation implements ActionListener
                 e.printStackTrace();
             }
         }
-        
+        else
+        {
+            panel.remove(bgAnim);
+            panel.add(listBg);
+            panel.add(bgAnim);
+        }
     }
 }
 class ScrollBarVisual extends BasicScrollBarUI
