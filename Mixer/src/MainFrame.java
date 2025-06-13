@@ -1,11 +1,13 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.sql.*;
@@ -44,10 +46,13 @@ public class MainFrame {
         JScrollPane ingredientListScroll = new JScrollPane(ingredientList);
         JScrollPane recipeListScroll = new JScrollPane(recipeList);
 
+        UIManager.put("ScrollBar.maximumThumbSize", new Dimension(0, 0));
+
         //ScrollBars
         JScrollBar sb = new JScrollBar();
         JScrollBar ingredScrollBar = ingredientListScroll.getVerticalScrollBar();
         ingredScrollBar.setUI(new ScrollBarVisual());
+        
 
         //Buttons
         //add images to buttons later
@@ -91,7 +96,7 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         addRecipeBtn.addActionListener(e -> userAddRecipe());
         startBtn.addActionListener(e -> userClickedStart());
-        sb.addAdjustmentListener(new scrollListener(ingredientListBtn));
+        sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
         ingredientListScroll.setBounds(40, 40, 300, 500);
@@ -101,11 +106,13 @@ public class MainFrame {
         addRecipeBtn.setBounds(300, 620, 200, 25);
         startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
-        sb.setBounds(350, 300, 50, 25);
+        sb.setBounds(0, -900, 350, 1500);
+
+        sb.setOpaque(false);
+        //sb.repaint(0, 0, 0, 0);
+
 
         //adding components to the frame
-        
-        
         frame.add(panel);
         panel.add(dawd);
         panel.add(addIngredientBtn);
@@ -117,6 +124,10 @@ public class MainFrame {
         
         panel.add(bgAnim);
         frame.setVisible(true);
+
+        sb.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 0), 20000));
+
+        sb.repaint();
         
         //list backgound initial animation
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
@@ -266,7 +277,7 @@ public class MainFrame {
         }*/
     }
 }
-class scrollListener implements AdjustmentListener
+class scrollListener implements MouseWheelListener
 {
     private JButton[] ingredBtn = null;
     int j = 0;
@@ -278,24 +289,34 @@ class scrollListener implements AdjustmentListener
             ingredBtn = btnList;
         }
     }
-    int current = 1;
-    public void adjustmentValueChanged(AdjustmentEvent e)
+    
+    /*public void adjustmentValueChanged(AdjustmentEvent e)
     {
         if (e.getValue() < current) //up
         {
-            for (int j = 0; j < ingredBtn.length && ingredBtn[j] != null; j++)
-            {
-                current = e.getValue();
-                ingredBtn[j].setBounds(4 + ingredBtn[j].getBounds().x, ingredBtn[j].getBounds().y - 20, 300, 35);
-                offset += 50;
-            }
+            
         }
         else if (e.getValue() > current)
         {
+            
+        }
+    }*/
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int current = e.getWheelRotation();
+        if (current == 1)
+        {
             for (int j = 0; j < ingredBtn.length && ingredBtn[j] != null; j++)
             {
-                current = e.getValue();
                 ingredBtn[j].setBounds(-4 + ingredBtn[j].getBounds().x, 20 + ingredBtn[j].getBounds().y, 300, 35);
+                offset += 50;
+            }
+        }
+        else if (current == -1)
+        {
+            for (int j = 0; j < ingredBtn.length && ingredBtn[j] != null; j++)
+            {
+                ingredBtn[j].setBounds(4 + ingredBtn[j].getBounds().x, ingredBtn[j].getBounds().y - 20, 300, 35);
                 offset += 50;
             }
         }
