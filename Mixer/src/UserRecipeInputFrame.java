@@ -1,16 +1,8 @@
-import java.sql.*;
 import javax.swing.*;
+import java.sql.*;
 
-/* Script created by Nigel Garcia
- * June 12, 2025
- * UserInputFrame
- * this frame displays textboxes that the user can add information into the database
- */
-
-public class UserInputFrame {
-    //Frame and functionality developed by Shannon
-    //Design made by Nigel
-    public void userDisplayFrame(Connection conn, JFrame mainFrame)
+public class UserRecipeInputFrame {
+    public void userDisplayFrame(Connection conn, JFrame mainFrame) 
     {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -35,20 +27,20 @@ public class UserInputFrame {
         panel.add(confirmBtn);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextPane txt, JFrame Tframe, Connection conn, JFrame mainFrame)
+    private void userClickedConfirm(JTextPane txt, JFrame frame, Connection conn, JFrame mainFrame)
     {
         String res = txt.getText();
         txt.setText("");
         System.out.println(res);
         try
         {
-            String command = "INSERT INTO Ingredients (IngredientName) VALUES (?)";
+            String command = "INSERT INTO RecipeTable (RecipeName) VALUES (?)";
             PreparedStatement ps = conn.prepareStatement(command);
             ps.setString(1, res);
             ps.executeUpdate();
-            
+
             //disposing frame no work fix later 
-            Tframe.dispose();
+            frame.dispose();
             Main main = new Main();
             main.reloadProgram();
         }

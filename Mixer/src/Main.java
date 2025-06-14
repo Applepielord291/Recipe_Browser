@@ -12,4 +12,17 @@ public class Main {
         MainFrame mainFrame = new MainFrame();
         mainFrame.DisplayMainFrame();
     }
+    public void reloadProgram()
+    {
+        try
+        {
+            MainFrame mainFrame = new MainFrame();
+            mainFrame.DisplayMainFrame();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+    }
 }

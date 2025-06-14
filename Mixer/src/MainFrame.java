@@ -22,12 +22,13 @@ public class MainFrame {
     private JButton[] ingredientListBtn = null; //list of ingredientss
     private JButton[] recipeListBtn = null; //list of recipes
     private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
+    private JFrame frame = new JFrame();
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
     public void DisplayMainFrame() throws Exception {
         //Essential Components
-        JFrame frame = new JFrame();
+        
         JPanel panel = new JPanel();
         JPanel recipeList = new JPanel();
 
@@ -36,6 +37,7 @@ public class MainFrame {
 
         //ScrollPanes
         JScrollPane recipeListScroll = new JScrollPane(recipeList);
+        recipeListScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         
         //ScrollBars
         JScrollBar sb = new JScrollBar();
@@ -44,6 +46,8 @@ public class MainFrame {
         //add images to buttons later
         JButton addIngredientBtn = new JButton("Add ingredient");
         JButton addRecipeBtn = new JButton("Add Recipe");
+        JButton removeIngredientBtn = new JButton("Remove Ingredient");
+        JButton removeRecipeBtn = new JButton("Remove Recipe");
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("More Information");
 
@@ -62,10 +66,10 @@ public class MainFrame {
 
         //Functions and button list initialize
         Connection connection = initConnection();
-        int ingredientBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM Ingredients");
-        int recipeBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM RecipeTable");
-        ingredientListBtn = new JButton[ingredientBtnCount+1];
-        recipeListBtn = new JButton[recipeBtnCount+1];
+        int ingredientBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM Ingredients", "UPDATE Ingredients SET IngredientID = ?");
+        int recipeBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM RecipeTable", "UPDATE RecipeTable SET RecipeID = ?");
+        ingredientListBtn = new JButton[ingredientBtnCount+2];
+        recipeListBtn = new JButton[recipeBtnCount];
 
         //scrollBar scales bases on buttonCount
         sb.setMaximum(ingredientBtnCount * 10);
@@ -75,20 +79,22 @@ public class MainFrame {
         frame.setSize(1200, 700);
         frame.setLocationRelativeTo(null);
         panel.setLayout(null);
-        recipeList.setLayout(new FlowLayout());
+        recipeList.setLayout(new GridLayout(0, 1));
         panel.setSize(1200, 700);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
         //Component Listeners
-        addIngredientBtn.addActionListener(e -> userAddIngredient());
+        addIngredientBtn.addActionListener(e -> userAddIngredient(connection));
         exitBtn.addActionListener(e -> userClickedExit(frame));
-        addRecipeBtn.addActionListener(e -> userAddRecipe());
+        addRecipeBtn.addActionListener(e -> userAddRecipe(connection));
         startBtn.addActionListener(e -> userClickedStart());
+        removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
+        removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
+
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
-        recipeListScroll.setBounds(850, 50, 300, 500);
         addIngredientBtn.setBounds(300, 650, 200, 25);
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
@@ -97,12 +103,14 @@ public class MainFrame {
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
+        removeIngredientBtn.setBounds(525, 650, 200, 25);
+        removeRecipeBtn.setBounds(525, 620, 200, 25);
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
-        recipeListScroll.setOpaque(false);
+        recipeList.setOpaque(false);
         sb.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 0), 20000));
-        recipeListScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 255), 5));
+        recipeListScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 255), 7));
 
         //adding components to the frame
         frame.add(panel);
@@ -113,6 +121,8 @@ public class MainFrame {
         panel.add(addRecipeBtn);
         panel.add(startBtn);
         panel.add(sb);
+        panel.add(removeIngredientBtn);
+        panel.add(removeRecipeBtn);
         
         panel.add(bgAnim);
         frame.setVisible(true);
@@ -136,9 +146,8 @@ public class MainFrame {
             }
         }
         
-        
-        DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientID = ?", "IngredientName", 40);
-        DisplayRecipeBtns(recipeListBtn, recipeList);
+        DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", 40, sb);
+        DisplayRecipeBtns(recipeListBtn, recipeList, connection);
 
         //Opening animation for the array of ingredient buttons
         Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn, 5));
@@ -150,17 +159,50 @@ public class MainFrame {
         }, 375, TimeUnit.MILLISECONDS);
         
     }
-    private void DisplayRecipeBtns(JButton[] btns, JPanel panel)
+    public void reloadFrame()
+    {
+        frame.dispose();
+    }
+    private void userRemove(boolean which, Connection con)
+    {
+        if (which)
+        {
+            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", con, "DELETE * FROM Ingredients WHERE IngredientName = ?");
+            uRemove.DisplayFrame();
+        }
+        else
+        {
+            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT IngredientName FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?");
+            uRemove.DisplayFrame();
+        }
+    }
+    private void DisplayRecipeBtns(JButton[] btns, JPanel panel, Connection con)
     {
         for (int i = 0; i < btns.length; i++)
         {
-            btns[i] = new JButton("test");
-            panel.add(btns[i]);
+            try
+            {
+                String command = "SELECT * FROM RecipeTable WHERE RecipeID = ?";
+                PreparedStatement ps = con.prepareStatement(command);
+                ps.setInt(1, i+1);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next())
+                {
+                    btns[i] = new JButton(rs.getString("RecipeName"));
+                    btns[i].setPreferredSize(new Dimension(265, 45));
+                    panel.add(btns[i]);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            
         }
     }
-    private void DisplayIngredientBtns(JPanel panel, JLabel bgAnim, JButton[] btnList, Connection conn, JLabel listBg, String command, String column, int initX)
+    private void DisplayIngredientBtns(JPanel panel, JLabel bgAnim, JButton[] btnList, Connection conn, JLabel listBg, String command, String column, int initX, JScrollBar sb)
     {
-        Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX));
+        Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX, sb));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
@@ -168,11 +210,12 @@ public class MainFrame {
             panel.remove(bgAnim);
             panel.add(listBg);
             panel.add(bgAnim);
+            listBg.revalidate();
+            listBg.repaint();
             timer.stop();
         }, 1, TimeUnit.SECONDS);
         scheduledExecutorService.shutdown();
-        listBg.revalidate();
-        listBg.repaint();
+        
     }
     private BufferedImage rotateAnimateList(BufferedImage image, int degrees)
     {
@@ -199,12 +242,12 @@ public class MainFrame {
         g2d.dispose();
         return rotate;
     }
-    private void userAddIngredient()
+    private void userAddIngredient(Connection conn)
     {
         //access database and ask user what ingredient to add.
         //after that, reload ingredient and recipe list
         UserInputFrame inputFrame = new UserInputFrame();
-        inputFrame.userDisplayFrame();
+        inputFrame.userDisplayFrame(conn, frame);
     }
     private void userClickedExit(JFrame frame)
     {
@@ -217,10 +260,12 @@ public class MainFrame {
             System.exit(0);
         }
     }
-    private void userAddRecipe()
+    private void userAddRecipe(Connection conn)
     {
         //access database and ask user what recipe to add.
         //after that, reload recipe list
+        UserRecipeInputFrame inputFrame = new UserRecipeInputFrame();
+        inputFrame.userDisplayFrame(conn, frame);
     }
     private void userClickedStart()
     {
@@ -242,7 +287,7 @@ public class MainFrame {
     }
     //used to reload the recipe list
     //call this function whenever user makes changes to ingredients
-    private int reloadRecipesIngredients(Connection conn, String command)
+    private int reloadRecipesIngredients(Connection conn, String command, String command2)
     {
         try
         {
@@ -252,7 +297,8 @@ public class MainFrame {
             ResultSet rs = s.getResultSet();
             while (rs!=null && rs.next())
             {
-                total = Integer.parseInt(rs.getString(1));
+                //total = Integer.parseInt(rs.getInt(1));
+                total++;
             }
             return total;
         }
@@ -308,7 +354,11 @@ class AddButtons implements ActionListener
     private String command = "";
     private String column = "";
     private int initX = 0;
-    public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x)
+    private JScrollBar sb = null;
+    private Statement s = null;
+    private ResultSet rs2 = null;
+    private boolean runOnce = false;
+    public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s)
     {
         panel = ingredList;
         bgAnim = bg;
@@ -318,9 +368,11 @@ class AddButtons implements ActionListener
         command = com;
         column = colName;
         initX = x;
+        sb = s;
     }
     MainFrame mainFrame = new MainFrame();
     int angle = 0;
+    int skip = 0;
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
@@ -329,18 +381,37 @@ class AddButtons implements ActionListener
             panel.remove(bgAnim);
             try
             {
+                if (!runOnce)
+                {
+                    s = connection.createStatement();
+                    s.execute("SELECT IngredientName FROM Ingredients");
+                    rs2 = s.getResultSet();
+                    runOnce = true;
+                }
                 PreparedStatement ps = connection.prepareStatement(command);
-                ps.setInt(1, i+1);
+                if (rs2.next())
+                {
+                    System.out.println(rs2.getString(column));
+                    ps.setString(1, rs2.getString(column));
+                }
+                //ps.setInt(1, i+1);
+                //ps.setString(1, ingredBtn[i].getText());
                 ResultSet rs = ps.executeQuery();
                 
-                if (rs.next())
+                while (rs.next())
                 {
+                    panel.remove(sb);
+                    panel.remove(bgAnim);
+                    panel.remove(listBg);
                     ingredBtn[i] = new JButton(rs.getString(column));
                     ingredBtn[i].setBounds((-offset/5) + initX, offset - 150, 300, 35);
+                    ingredBtn[i].addActionListener(e -> userClickedIngredient());
                     panel.add(ingredBtn[i]);
                     i++;
                     offset += 50;
+                    panel.add(listBg);
                     panel.add(bgAnim);
+                    panel.add(sb);
                     panel.revalidate();
                     panel.repaint();
                 }
@@ -352,10 +423,13 @@ class AddButtons implements ActionListener
         }
         else
         {
-            panel.remove(bgAnim);
-            panel.add(listBg);
-            panel.add(bgAnim);
+            
         }
+    }
+    private void userClickedIngredient()
+    {
+        //MOUSE CANT BE CLICKED BECAUSE OF THE ORIGINAL SCROLLBAR THAT I PLACED
+        System.out.println("IngredientClicked!");
     }
 }
 class ButtonInit implements ActionListener
