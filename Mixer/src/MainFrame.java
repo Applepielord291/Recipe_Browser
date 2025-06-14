@@ -172,25 +172,39 @@ public class MainFrame {
         }
         else
         {
-            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT IngredientName FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?");
+            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?");
             uRemove.DisplayFrame();
         }
     }
     private void DisplayRecipeBtns(JButton[] btns, JPanel panel, Connection con)
     {
+        Statement s = null;
+        ResultSet rs2 = null;
+        boolean runOnce = false;
         for (int i = 0; i < btns.length; i++)
         {
             try
             {
-                String command = "SELECT * FROM RecipeTable WHERE RecipeID = ?";
-                PreparedStatement ps = con.prepareStatement(command);
-                ps.setInt(1, i+1);
-                ResultSet rs = ps.executeQuery();
-                if (rs.next())
+                if (!runOnce)
                 {
-                    btns[i] = new JButton(rs.getString("RecipeName"));
-                    btns[i].setPreferredSize(new Dimension(265, 45));
-                    panel.add(btns[i]);
+                    s = con.createStatement();
+                    s.execute("SELECT RecipeName FROM RecipeTable");
+                    rs2 = s.getResultSet();
+                    runOnce = true;
+                }
+
+                if (rs2.next())
+                {
+                    String command = "SELECT RecipeName FROM RecipeTable WHERE RecipeName = ?";
+                    PreparedStatement ps = con.prepareStatement(command);
+                    ps.setString(1, rs2.getString("RecipeName"));
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next())
+                    {
+                        btns[i] = new JButton(rs.getString("RecipeName"));
+                        btns[i].setPreferredSize(new Dimension(265, 45));
+                        panel.add(btns[i]);
+                    }
                 }
             }
             catch (Exception e)
@@ -358,6 +372,7 @@ class AddButtons implements ActionListener
     private Statement s = null;
     private ResultSet rs2 = null;
     private boolean runOnce = false;
+    private ResultSet rs = null;
     public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s)
     {
         panel = ingredList;
@@ -388,15 +403,14 @@ class AddButtons implements ActionListener
                     rs2 = s.getResultSet();
                     runOnce = true;
                 }
+
                 PreparedStatement ps = connection.prepareStatement(command);
                 if (rs2.next())
                 {
                     System.out.println(rs2.getString(column));
                     ps.setString(1, rs2.getString(column));
+                    rs = ps.executeQuery();
                 }
-                //ps.setInt(1, i+1);
-                //ps.setString(1, ingredBtn[i].getText());
-                ResultSet rs = ps.executeQuery();
                 
                 while (rs.next())
                 {
@@ -411,9 +425,9 @@ class AddButtons implements ActionListener
                     offset += 50;
                     panel.add(listBg);
                     panel.add(bgAnim);
-                    panel.add(sb);
                     panel.revalidate();
                     panel.repaint();
+                    panel.add(sb);
                 }
             }
             catch (SQLException e)

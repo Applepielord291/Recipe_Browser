@@ -50,7 +50,6 @@ public class UserRemoveInfo {
     }
     private void userClickedConfirm(JTextField txt, JFrame frame, JLabel validLbl)
     {
-        System.out.println("is this even real");
         String res = txt.getText();
         boolean found = false;
         try
@@ -62,22 +61,23 @@ public class UserRemoveInfo {
             {
                 if (rs.getString(column).toLowerCase().equals(res.toLowerCase()))
                 {
-                    System.out.println("found");
                     found = true;
                     break;
                 }
             }
             if (!found)
             {
-                System.out.println("none wofofdw fofudnd isisis thrhrealal wlwowlwowl");
                 //put error window saying to try again
             }
             else
             {
-                System.out.println("removig that teaghe");
                 ps = conn.prepareStatement(removeCommand);
                 ps.setString(1, res);
                 ps.executeUpdate();
+
+                frame.dispose();
+                Main main = new Main();
+                main.reloadProgram();
             }
         }
         catch (Exception e)
