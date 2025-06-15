@@ -2,7 +2,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.Connection;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -15,7 +18,7 @@ import javax.swing.*;
 public class AddRemoveFrame {
     public void DisplayFrame(Connection connection, JFrame mFrame)
     {
-        JFrame frame = new JFrame();
+        JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
         frame.setUndecorated(true);
@@ -42,6 +45,17 @@ public class AddRemoveFrame {
         removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
         removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
         cancelBtn.addActionListener(e -> userClickedCancel(frame));
+
+        frame.setModal(false);
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                frame.dispose();
+            }
+            @Override
+            public void windowGainedFocus(WindowEvent e) {}
+        });
 
         addIngredientBtn.setBounds(100, 40, 200, 35);
         addRecipeBtn.setBounds(100, 80, 200, 35);
@@ -77,9 +91,30 @@ public class AddRemoveFrame {
         btn.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 255), 3));
         btn.setFont(new Font("Arial", Font.PLAIN, 16));
         btn.setForeground(Color.WHITE);
-        btn.addMouseListener(new ButtonHover());
+        btn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+
+            @Override
+            public void mousePressed(MouseEvent e) {}
+
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                JButton selBtn = (JButton)e.getSource();
+                selBtn.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150, 255), 6));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                JButton selBtn = (JButton)e.getSource();
+                selBtn.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 255), 3));
+            }
+        });
     }
-    private void startFrameTransition(JFrame frame, boolean isQuit, int speed)
+    private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {
         Timer timer = new Timer(1/2, new FrameTransition(frame, speed));
         timer.start();
@@ -89,7 +124,7 @@ public class AddRemoveFrame {
         }, 1, TimeUnit.SECONDS);
         scheduledExecutorService.shutdown();
     }
-    private void userClickedCancel(JFrame frame)
+    private void userClickedCancel(JDialog frame)
     {
         frame.dispose();
     }
@@ -124,11 +159,11 @@ public class AddRemoveFrame {
 
 class FrameTransition implements ActionListener
 {
-    private JFrame frame;
+    private JDialog frame;
     private int xSize = 0;
     private int ySize = 0;
     private int speed = 0;
-    public FrameTransition(JFrame f, int spd)
+    public FrameTransition(JDialog f, int spd)
     {
         frame = f;
         speed = spd;
@@ -142,29 +177,4 @@ class FrameTransition implements ActionListener
             frame.setBounds(frame.getBounds().x-50, frame.getBounds().y-50, ySize, xSize);
         }
     }
-}
-
-class ButtonHover implements MouseListener
-{
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent e) {}
-
-    @Override
-    public void mousePressed(java.awt.event.MouseEvent e) {}
-
-    @Override
-    public void mouseReleased(java.awt.event.MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(java.awt.event.MouseEvent e) {
-        JButton selBtn = (JButton)e.getSource();
-        selBtn.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150, 255), 6));
-    }
-
-    @Override
-    public void mouseExited(java.awt.event.MouseEvent e) {
-        JButton selBtn = (JButton)e.getSource();
-        selBtn.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 255), 3));
-    }
-    
 }

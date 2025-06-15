@@ -27,6 +27,7 @@ public class MainFrame {
     private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
     private JFrame frame = new JFrame();
     private String[] selectedIngredients = null;
+    private String[] requiredIngredients = null;
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -51,6 +52,7 @@ public class MainFrame {
         JButton addRemoveMenu = new JButton("Settings");
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("More Information");
+        JButton recipeSearchBtn = new JButton("Recipe Search");
 
         //ImageIcons
         ImageIcon bgList = new ImageIcon("Mixer\\Graphics\\Background\\ListBg.png");
@@ -71,7 +73,8 @@ public class MainFrame {
         int recipeBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM RecipeTable", "UPDATE RecipeTable SET RecipeID = ?");
         ingredientListBtn = new JButton[ingredientBtnCount+1];
         recipeListBtn = new JButton[recipeBtnCount];
-        selectedIngredients = new String[ingredientBtnCount+1];
+        selectedIngredients = new String[ingredientBtnCount];
+        requiredIngredients = new String[recipeBtnCount];
 
         //scrollBar scales bases on buttonCount
         sb.setMaximum(ingredientBtnCount * 10);
@@ -90,6 +93,7 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         startBtn.addActionListener(e -> userClickedStart());
         addRemoveMenu.addActionListener(e -> displayAddRemoveMenu(connection));
+        recipeSearchBtn.addActionListener(e -> searchForValidRecipes(connection));
 
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
@@ -101,6 +105,7 @@ public class MainFrame {
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
         addRemoveMenu.setBounds(525, 500, 125, 25);
+        recipeSearchBtn.setBounds(525, 525, 125, 25);
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
@@ -116,6 +121,7 @@ public class MainFrame {
         panel.add(startBtn);
         panel.add(sb);
         panel.add(addRemoveMenu);
+        panel.add(recipeSearchBtn);
         
         panel.add(bgAnim);
         frame.setVisible(true);
@@ -151,6 +157,96 @@ public class MainFrame {
             scheduledExecutorService2.shutdown();
         }, 375, TimeUnit.MILLISECONDS);
         
+    }
+    private void searchForValidRecipes(Connection con)
+    {
+        System.out.println("\n");
+        
+        
+        try
+        {
+            Statement s = con.createStatement();
+            ResultSet rs = s.executeQuery("SELECT * FROM RecipeTable");
+            while (rs.next())
+            {
+                //reset values back to normal
+                String selected = "";
+                System.out.print("selected Ingredients array: ");
+                for (int i = 0; i < selectedIngredients.length; i++)
+                {
+                    System.out.print(selectedIngredients[i] + " ");
+                }
+                String[] tempSelIng = new String[selectedIngredients.length];
+                for (int i = 0; i < tempSelIng.length; i++)
+                {
+                    tempSelIng[i] = selectedIngredients[i];
+                }
+                boolean x = false;
+                int currentRow = 0;
+                int currentBegin = 0;
+                String[] req = new String[10];
+
+                System.out.println();
+
+                for (int i = 0; i < tempSelIng.length; i++)
+                {
+                    selected += tempSelIng[i];
+                }
+                System.out.println("selected: " + selected);
+                
+                //split single string into multiple
+                //count number of commas?
+                String current = rs.getString(3);
+                for (int i = 0; i < current.length(); i++)
+                {
+                    if (current.charAt(i) == ','||current.charAt(i) == '.')
+                    {
+                        req[currentRow] = current.substring(currentBegin, i);
+                        currentBegin = i+1;
+                        currentRow++;
+                    }
+                }
+                int tester = 0;
+                for (int i = 0; i < req.length; i++)
+                {
+                    if (req[i] != null) 
+                    {
+                        tester++;
+                    }
+                }
+                System.out.println("Tester init: " + tester);
+                for (int i = 0; i < tempSelIng.length; i++)
+                {
+                    for (int j = 0; j < req.length; j++)
+                    {
+                        if (tempSelIng[i]!=null && req[j]!=null && tempSelIng[i].toLowerCase().equals(req[j].toLowerCase()))
+                        {
+                            tester = tester-1;
+                            System.out.println("Tester: "+tester);
+
+                            //change to null for the valid recipe check
+                            tempSelIng[i] = null;
+                        }
+                    }
+                }
+                //loop through array again, if all values in selected ingredients are null, then that means that the recipe is valid.
+                //with how the system is, you MUST add a parameter where the user must select at least one ingredient
+                //either that, or add a counter for each time something is found, and if found = 0, have recipe be invalid anyway.
+
+                if (tester == 0)
+                {
+                    System.out.println("recipe valid.");
+                }
+                else
+                {
+                    System.out.println("recipe invalid.");
+                }
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     private void displayAddRemoveMenu(Connection con)
     {
@@ -428,10 +524,6 @@ class AddButtons implements ActionListener, MouseListener
                 e.printStackTrace();
             }
         }
-        else
-        {
-            
-        }
     }
     private void userClickedIngredient(ActionEvent e)
     {
@@ -442,7 +534,6 @@ class AddButtons implements ActionListener, MouseListener
             int fin = 0;
             int speed = 0;
             boolean x = false;
-            System.out.println(1);
             
             for (int i = 0; i < ingredientSelected.length; i++)
             {
@@ -450,7 +541,6 @@ class AddButtons implements ActionListener, MouseListener
                 {
                     if (ingredientSelected[j] == selectIng)
                     {
-                        System.out.println(selectIng + " found");
                         ingredientSelected[j] = null;
                         fin = -85;
                         speed = -5;
@@ -460,7 +550,6 @@ class AddButtons implements ActionListener, MouseListener
             
                 if (ingredientSelected[i] == null && !x)
                 {
-                    System.out.println(selectIng + " not found");
                     ingredientSelected[i] = selectIng;
                     fin = 85;
                     speed = 5;
@@ -482,14 +571,12 @@ class AddButtons implements ActionListener, MouseListener
     @Override
     public void mouseEntered(MouseEvent e)
     {
-        System.out.println("entered");
         JButton selBtn = (JButton)e.getSource();
         selBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200, 255), 4));
     }
     @Override
     public void mouseExited(MouseEvent e)
     {
-        System.out.println("exit");
         JButton selBtn = (JButton)e.getSource();
         selBtn.setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
     }
