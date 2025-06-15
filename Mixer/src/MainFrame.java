@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
@@ -45,6 +48,7 @@ public class MainFrame {
 
         //Buttons
         //add images to buttons later
+        JButton addRemoveMenu = new JButton("Settings");
         JButton addIngredientBtn = new JButton("Add ingredient");
         JButton addRecipeBtn = new JButton("Add Recipe");
         JButton removeIngredientBtn = new JButton("Remove Ingredient");
@@ -93,6 +97,7 @@ public class MainFrame {
         startBtn.addActionListener(e -> userClickedStart());
         removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
         removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
+        addRemoveMenu.addActionListener(e -> displayAddRemoveMenu());
 
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
@@ -107,6 +112,7 @@ public class MainFrame {
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
         removeIngredientBtn.setBounds(525, 650, 200, 25);
         removeRecipeBtn.setBounds(525, 620, 200, 25);
+        addRemoveMenu.setBounds(525, 480, 200, 25);
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
@@ -125,6 +131,7 @@ public class MainFrame {
         panel.add(sb);
         panel.add(removeIngredientBtn);
         panel.add(removeRecipeBtn);
+        panel.add(addRemoveMenu);
         
         panel.add(bgAnim);
         frame.setVisible(true);
@@ -159,6 +166,10 @@ public class MainFrame {
             iBtnListInit.stop();
             scheduledExecutorService2.shutdown();
         }, 375, TimeUnit.MILLISECONDS);
+        
+    }
+    private void displayAddRemoveMenu()
+    {
         
     }
     public void reloadFrame()
@@ -358,7 +369,7 @@ class scrollListener implements MouseWheelListener
         }
     }
 }
-class AddButtons implements ActionListener
+class AddButtons implements ActionListener, MouseListener
 {
     private JButton[] ingredBtn = null;
     private JPanel panel = null;
@@ -377,6 +388,7 @@ class AddButtons implements ActionListener
     private ResultSet rs = null;
     private String[] ingredientSelected = null;
     private ImageIcon ingredientBtnUnselected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientUnselected.png");
+    private ImageIcon ingredientBtnHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientHovered.png");
     public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s, String[] stringList)
     {
         panel = ingredList;
@@ -427,6 +439,20 @@ class AddButtons implements ActionListener
                     ingredBtn[i].setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
                     ingredBtn[i].setBounds((-offset/5) + initX, offset - 150, 300, 35);
                     ingredBtn[i].addActionListener(e -> userClickedIngredient(e));
+                    ingredBtn[i].addMouseListener(new MouseAdapter() {
+                        public void mouseEntered(MouseEvent t) 
+                        {
+                            JButton selBtn = (JButton)t.getSource();
+                            selBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200, 255), 4));
+                            selBtn.setIcon(ingredientBtnHovered);
+                        }
+                        public void mouseExited(MouseEvent t)
+                        {
+                            JButton selBtn = (JButton)t.getSource();
+                            selBtn.setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
+                            selBtn.setIcon(ingredientBtnUnselected);
+                        }
+                    });
                     panel.add(ingredBtn[i]);
                     i++;
                     offset += 50;
@@ -492,8 +518,27 @@ class AddButtons implements ActionListener
             scheduledExecutorService.shutdown();
         }, 345, TimeUnit.MILLISECONDS);
         scheduledExecutorService2.shutdown();
-        
     }
+    @Override
+    public void mouseEntered(MouseEvent e)
+    {
+        System.out.println("entered");
+        JButton selBtn = (JButton)e.getSource();
+        selBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200, 255), 4));
+    }
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+        System.out.println("exit");
+        JButton selBtn = (JButton)e.getSource();
+        selBtn.setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
+    }
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+    @Override
+    public void mouseClicked(MouseEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {}
 }
 
 class ButtonSelected implements ActionListener
