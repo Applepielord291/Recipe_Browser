@@ -23,6 +23,7 @@ public class MainFrame {
     private JButton[] recipeListBtn = null; //list of recipes
     private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
     private JFrame frame = new JFrame();
+    private String[] selectedIngredients = null;
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -68,8 +69,9 @@ public class MainFrame {
         Connection connection = initConnection();
         int ingredientBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM Ingredients", "UPDATE Ingredients SET IngredientID = ?");
         int recipeBtnCount = reloadRecipesIngredients(connection, "SELECT * FROM RecipeTable", "UPDATE RecipeTable SET RecipeID = ?");
-        ingredientListBtn = new JButton[ingredientBtnCount+2];
+        ingredientListBtn = new JButton[ingredientBtnCount+1];
         recipeListBtn = new JButton[recipeBtnCount];
+        selectedIngredients = new String[ingredientBtnCount+1];
 
         //scrollBar scales bases on buttonCount
         sb.setMaximum(ingredientBtnCount * 10);
@@ -216,7 +218,7 @@ public class MainFrame {
     }
     private void DisplayIngredientBtns(JPanel panel, JLabel bgAnim, JButton[] btnList, Connection conn, JLabel listBg, String command, String column, int initX, JScrollBar sb)
     {
-        Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX, sb));
+        Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX, sb, selectedIngredients));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
@@ -373,7 +375,9 @@ class AddButtons implements ActionListener
     private ResultSet rs2 = null;
     private boolean runOnce = false;
     private ResultSet rs = null;
-    public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s)
+    private String[] ingredientSelected = null;
+    private ImageIcon ingredientBtnUnselected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientUnselected.png");
+    public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s, String[] stringList)
     {
         panel = ingredList;
         bgAnim = bg;
@@ -384,6 +388,7 @@ class AddButtons implements ActionListener
         column = colName;
         initX = x;
         sb = s;
+        ingredientSelected = stringList;
     }
     MainFrame mainFrame = new MainFrame();
     int angle = 0;
@@ -407,7 +412,6 @@ class AddButtons implements ActionListener
                 PreparedStatement ps = connection.prepareStatement(command);
                 if (rs2.next())
                 {
-                    System.out.println(rs2.getString(column));
                     ps.setString(1, rs2.getString(column));
                     rs = ps.executeQuery();
                 }
@@ -417,9 +421,12 @@ class AddButtons implements ActionListener
                     panel.remove(sb);
                     panel.remove(bgAnim);
                     panel.remove(listBg);
-                    ingredBtn[i] = new JButton(rs.getString(column));
+                    ingredBtn[i] = new JButton(rs.getString(column), ingredientBtnUnselected);
+                    ingredBtn[i].setHorizontalTextPosition(JButton.CENTER); ingredBtn[i].setHorizontalTextPosition(JButton.CENTER);
+                    ingredBtn[i].setForeground(Color.WHITE); ingredBtn[i].setFont(new Font("Arial", Font.PLAIN, 16));
+                    ingredBtn[i].setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
                     ingredBtn[i].setBounds((-offset/5) + initX, offset - 150, 300, 35);
-                    ingredBtn[i].addActionListener(e -> userClickedIngredient());
+                    ingredBtn[i].addActionListener(e -> userClickedIngredient(e));
                     panel.add(ingredBtn[i]);
                     i++;
                     offset += 50;
@@ -440,10 +447,73 @@ class AddButtons implements ActionListener
             
         }
     }
-    private void userClickedIngredient()
+    private void userClickedIngredient(ActionEvent e)
     {
-        //MOUSE CANT BE CLICKED BECAUSE OF THE ORIGINAL SCROLLBAR THAT I PLACED
-        System.out.println("IngredientClicked!");
+        ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService2.schedule(() -> {
+            JButton selectedBtn = (JButton)e.getSource();
+            String selectIng = selectedBtn.getText();
+            int fin = 0;
+            int speed = 0;
+            boolean x = false;
+            System.out.println(1);
+            
+            for (int i = 0; i < ingredientSelected.length; i++)
+            {
+                for (int j = 0; j < ingredientSelected.length; j++)
+                {
+                    if (ingredientSelected[j] == selectIng)
+                    {
+                        System.out.println(selectIng + " found");
+                        ingredientSelected[j] = null;
+                        fin = -85;
+                        speed = -5;
+                        x = true;
+                    }
+                }
+            
+                if (ingredientSelected[i] == null && !x)
+                {
+                    System.out.println(selectIng + " not found");
+                    ingredientSelected[i] = selectIng;
+                    fin = 85;
+                    speed = 5;
+                    x = true;
+                    break;
+                }
+            }
+
+            Timer timer = new Timer(1, new ButtonSelected(selectedBtn, fin, speed));
+            timer.start();
+            ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+            scheduledExecutorService.schedule(() -> {
+                timer.stop();
+            }, 450, TimeUnit.MILLISECONDS);
+            scheduledExecutorService.shutdown();
+        }, 345, TimeUnit.MILLISECONDS);
+        scheduledExecutorService2.shutdown();
+        
+    }
+}
+
+class ButtonSelected implements ActionListener
+{
+    private JButton selBtn;
+    private int finalX;
+    private int goal;
+    private int speed;
+    public ButtonSelected(JButton btn, int fin, int spd)
+    {
+        selBtn = btn;
+        finalX = selBtn.getBounds().x;
+        goal = selBtn.getBounds().x + fin;
+        speed = spd;
+    }
+    @Override
+    public void actionPerformed(ActionEvent arg0)
+    {
+        finalX += speed;
+        selBtn.setBounds(finalX, selBtn.getBounds().y, 300, 35);
     }
 }
 class ButtonInit implements ActionListener
