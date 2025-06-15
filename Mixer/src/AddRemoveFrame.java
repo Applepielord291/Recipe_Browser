@@ -1,4 +1,9 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.*;
 
@@ -7,19 +12,25 @@ import javax.swing.*;
  */
 
 public class AddRemoveFrame {
-    public void DisplayFrame(Connection connection)
+    public void DisplayFrame(Connection connection, JFrame mFrame)
     {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
+
+        frame.setUndecorated(true);
 
         JButton addIngredientBtn = new JButton("Add ingredient");
         JButton addRecipeBtn = new JButton("Add Recipe");
         JButton removeIngredientBtn = new JButton("Remove Ingredient");
         JButton removeRecipeBtn = new JButton("Remove Recipe");
+        JButton cancelBtn = new JButton("cancel");
+
+        ImageIcon bgAnim = new ImageIcon("Mixer\\Graphics\\Background\\AddRemoveBg.gif");
+        JLabel bgAnimLbl = new JLabel(bgAnim);
 
         frame.setResizable(false);
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(null);
+        frame.setSize(0, 0);
+        frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
         panel.setSize(700, 500);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -29,18 +40,41 @@ public class AddRemoveFrame {
         addRecipeBtn.addActionListener(e -> userAddRecipe(connection));
         removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
         removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
+        cancelBtn.addActionListener(e -> userClickedCancel(frame));
 
-        addIngredientBtn.setBounds(10, 10, 200, 35);
-        addRecipeBtn.setBounds(10, 50, 200, 35);
-        removeIngredientBtn.setBounds(10, 90, 200, 35);
-        removeRecipeBtn.setBounds(10, 130, 200, 35);
+        addIngredientBtn.setBounds(100, 40, 200, 35);
+        addRecipeBtn.setBounds(100, 80, 200, 35);
+        removeIngredientBtn.setBounds(100, 120, 200, 35);
+        removeRecipeBtn.setBounds(100, 160, 200, 35);
+        cancelBtn.setBounds(100, 200, 200, 35);
+        bgAnimLbl.setBounds(-150, -50, 700, 500);
+
+        startFrameTransition(frame, false, 100);
 
         frame.add(panel);
         panel.add(addIngredientBtn);
         panel.add(addRecipeBtn);
         panel.add(removeIngredientBtn);
         panel.add(removeRecipeBtn);
+        panel.add(cancelBtn);
+
+        //alwasy add last
+        panel.add(bgAnimLbl);
         frame.setVisible(true);
+    }
+    private void startFrameTransition(JFrame frame, boolean isQuit, int speed)
+    {
+        Timer timer = new Timer(1/2, new FrameTransition(frame, speed));
+        timer.start();
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.schedule(() -> {
+            timer.stop();
+        }, 1, TimeUnit.SECONDS);
+        scheduledExecutorService.shutdown();
+    }
+    private void userClickedCancel(JFrame frame)
+    {
+        frame.dispose();
     }
     private void userRemove(boolean which, Connection con)
     {
@@ -68,5 +102,27 @@ public class AddRemoveFrame {
         //after that, reload recipe list
         UserRecipeInputFrame inputFrame = new UserRecipeInputFrame();
         inputFrame.userDisplayFrame(conn);
+    }
+}
+
+class FrameTransition implements ActionListener
+{
+    private JFrame frame;
+    private int xSize = 0;
+    private int ySize = 0;
+    private int speed = 0;
+    public FrameTransition(JFrame f, int spd)
+    {
+        frame = f;
+        speed = spd;
+    }
+    @Override 
+    public void actionPerformed(ActionEvent arg0)
+    {
+        if (frame.getSize().width < 400)
+        {
+            xSize += speed; ySize += speed;
+            frame.setBounds(frame.getBounds().x-50, frame.getBounds().y-50, ySize, xSize);
+        }
     }
 }

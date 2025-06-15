@@ -100,7 +100,7 @@ public class MainFrame {
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
-        addRemoveMenu.setBounds(525, 480, 200, 25);
+        addRemoveMenu.setBounds(525, 500, 125, 25);
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
@@ -155,7 +155,7 @@ public class MainFrame {
     private void displayAddRemoveMenu(Connection con)
     {
         AddRemoveFrame addRem = new AddRemoveFrame();
-        addRem.DisplayFrame(con);
+        addRem.DisplayFrame(con, frame);
     }
     public void reloadFrame()
     {
