@@ -1,8 +1,10 @@
 import javax.swing.*;
+
+import java.awt.Frame;
 import java.sql.*;
 
 public class UserRecipeInputFrame {
-    public void userDisplayFrame(Connection conn, JFrame mainFrame) 
+    public void userDisplayFrame(Connection conn) 
     {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -20,14 +22,14 @@ public class UserRecipeInputFrame {
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
 
-        confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn, mainFrame));
+        confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextPane txt, JFrame frame, Connection conn, JFrame mainFrame)
+    private void userClickedConfirm(JTextPane txt, JFrame frame, Connection conn)
     {
         String res = txt.getText();
         txt.setText("");
@@ -39,8 +41,11 @@ public class UserRecipeInputFrame {
             ps.setString(1, res);
             ps.executeUpdate();
 
-            //disposing frame no work fix later 
-            frame.dispose();
+            Frame[] frames = JFrame.getFrames();
+            for (int i = 0; i < frames.length; i++)
+            {
+                frames[i].dispose();
+            }
             Main main = new Main();
             main.reloadProgram();
         }

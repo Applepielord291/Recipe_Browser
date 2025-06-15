@@ -1,6 +1,7 @@
 import javax.swing.*;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.sql.*;
 
 public class UserRemoveInfo {
@@ -75,7 +76,11 @@ public class UserRemoveInfo {
                 ps.setString(1, res);
                 ps.executeUpdate();
 
-                frame.dispose();
+                Frame[] frames = JFrame.getFrames();
+                for (int i = 0; i < frames.length; i++)
+                {
+                    frames[i].dispose();
+                }
                 Main main = new Main();
                 main.reloadProgram();
             }

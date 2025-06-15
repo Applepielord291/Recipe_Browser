@@ -49,10 +49,6 @@ public class MainFrame {
         //Buttons
         //add images to buttons later
         JButton addRemoveMenu = new JButton("Settings");
-        JButton addIngredientBtn = new JButton("Add ingredient");
-        JButton addRecipeBtn = new JButton("Add Recipe");
-        JButton removeIngredientBtn = new JButton("Remove Ingredient");
-        JButton removeRecipeBtn = new JButton("Remove Recipe");
         JButton exitBtn = new JButton("Exit");
         JButton startBtn = new JButton("More Information");
 
@@ -91,27 +87,19 @@ public class MainFrame {
         frame.setTitle("The Cooking Station");
 
         //Component Listeners
-        addIngredientBtn.addActionListener(e -> userAddIngredient(connection));
         exitBtn.addActionListener(e -> userClickedExit(frame));
-        addRecipeBtn.addActionListener(e -> userAddRecipe(connection));
         startBtn.addActionListener(e -> userClickedStart());
-        removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
-        removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
-        addRemoveMenu.addActionListener(e -> displayAddRemoveMenu());
+        addRemoveMenu.addActionListener(e -> displayAddRemoveMenu(connection));
 
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
-        addIngredientBtn.setBounds(300, 650, 200, 25);
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
-        addRecipeBtn.setBounds(300, 620, 200, 25);
         startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
-        removeIngredientBtn.setBounds(525, 650, 200, 25);
-        removeRecipeBtn.setBounds(525, 620, 200, 25);
         addRemoveMenu.setBounds(525, 480, 200, 25);
 
         //Visual Changes to JComponents
@@ -124,13 +112,9 @@ public class MainFrame {
         frame.add(panel);
         panel.add(ingredBgList);
         panel.add(recipeListScroll);
-        panel.add(addIngredientBtn);
         panel.add(exitBtn);
-        panel.add(addRecipeBtn);
         panel.add(startBtn);
         panel.add(sb);
-        panel.add(removeIngredientBtn);
-        panel.add(removeRecipeBtn);
         panel.add(addRemoveMenu);
         
         panel.add(bgAnim);
@@ -168,27 +152,16 @@ public class MainFrame {
         }, 375, TimeUnit.MILLISECONDS);
         
     }
-    private void displayAddRemoveMenu()
+    private void displayAddRemoveMenu(Connection con)
     {
-        
+        AddRemoveFrame addRem = new AddRemoveFrame();
+        addRem.DisplayFrame(con);
     }
     public void reloadFrame()
     {
         frame.dispose();
     }
-    private void userRemove(boolean which, Connection con)
-    {
-        if (which)
-        {
-            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", con, "DELETE * FROM Ingredients WHERE IngredientName = ?");
-            uRemove.DisplayFrame();
-        }
-        else
-        {
-            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?");
-            uRemove.DisplayFrame();
-        }
-    }
+    
     private void DisplayRecipeBtns(JButton[] btns, JPanel panel, Connection con)
     {
         Statement s = null;
@@ -269,13 +242,7 @@ public class MainFrame {
         g2d.dispose();
         return rotate;
     }
-    private void userAddIngredient(Connection conn)
-    {
-        //access database and ask user what ingredient to add.
-        //after that, reload ingredient and recipe list
-        UserInputFrame inputFrame = new UserInputFrame();
-        inputFrame.userDisplayFrame(conn, frame);
-    }
+    
     private void userClickedExit(JFrame frame)
     {
         //popup window asking user to confirm exit
@@ -287,13 +254,7 @@ public class MainFrame {
             System.exit(0);
         }
     }
-    private void userAddRecipe(Connection conn)
-    {
-        //access database and ask user what recipe to add.
-        //after that, reload recipe list
-        UserRecipeInputFrame inputFrame = new UserRecipeInputFrame();
-        inputFrame.userDisplayFrame(conn, frame);
-    }
+    
     private void userClickedStart()
     {
         //Nothing right now
@@ -324,7 +285,6 @@ public class MainFrame {
             ResultSet rs = s.getResultSet();
             while (rs!=null && rs.next())
             {
-                //total = Integer.parseInt(rs.getInt(1));
                 total++;
             }
             return total;
@@ -545,13 +505,13 @@ class ButtonSelected implements ActionListener
 {
     private JButton selBtn;
     private int finalX;
-    private int goal;
+    //private int goal;
     private int speed;
     public ButtonSelected(JButton btn, int fin, int spd)
     {
         selBtn = btn;
         finalX = selBtn.getBounds().x;
-        goal = selBtn.getBounds().x + fin;
+        //goal = selBtn.getBounds().x + fin;
         speed = spd;
     }
     @Override

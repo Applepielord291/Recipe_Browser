@@ -1,3 +1,4 @@
+import java.awt.Frame;
 import java.sql.*;
 import javax.swing.*;
 
@@ -10,7 +11,7 @@ import javax.swing.*;
 public class UserInputFrame {
     //Frame and functionality developed by Shannon
     //Design made by Nigel
-    public void userDisplayFrame(Connection conn, JFrame mainFrame)
+    public void userDisplayFrame(Connection conn)
     {
         JFrame frame = new JFrame();
         JPanel panel = new JPanel();
@@ -28,14 +29,14 @@ public class UserInputFrame {
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
 
-        confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn, mainFrame));
+        confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextPane txt, JFrame Tframe, Connection conn, JFrame mainFrame)
+    private void userClickedConfirm(JTextPane txt, JFrame Tframe, Connection conn)
     {
         String res = txt.getText();
         txt.setText("");
@@ -47,8 +48,11 @@ public class UserInputFrame {
             ps.setString(1, res);
             ps.executeUpdate();
             
-            //disposing frame no work fix later 
-            Tframe.dispose();
+            Frame[] frames = JFrame.getFrames();
+            for (int i = 0; i < frames.length; i++)
+            {
+                frames[i].dispose();
+            }
             Main main = new Main();
             main.reloadProgram();
         }
