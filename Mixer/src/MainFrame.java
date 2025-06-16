@@ -24,7 +24,7 @@ public class MainFrame {
     private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
     private static JButton[] ingredientListBtn = null; //list of ingredientss
     private JButton[] recipeListBtn = null; //list of recipes
-    private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
+    //private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
     private JFrame frame = new JFrame();
     private String[] selectedIngredients = null;
 
@@ -46,14 +46,24 @@ public class MainFrame {
         //ScrollBars
         JScrollBar sb = new JScrollBar();
 
-        //Buttons
-        //add images to buttons later
-        JButton addRemoveMenu = new JButton("Settings");
-        JButton exitBtn = new JButton("Exit");
-        JButton recipeSearchBtn = new JButton("Recipe Search");
+        
 
         //ImageIcons
         ImageIcon bgList = new ImageIcon("Mixer\\Graphics\\Background\\ListBg.png");
+        ImageIcon recipeSearchNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\RecipeSearchNormal.png");
+        ImageIcon recipeSearchHover = new ImageIcon("Mixer\\Graphics\\Buttons\\RecipeSearchSelected.gif");
+        ImageIcon settingsNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\SettingsNormal.png");
+        ImageIcon settingsHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\SettingsHovered.gif");
+
+        //Buttons
+        //add images to buttons later
+        JButton addRemoveMenu = new JButton(settingsNormal);
+        JButton exitBtn = new JButton("Exit");
+        JButton recipeSearchBtn = new JButton(recipeSearchNormal);
+        recipeSearchBtn.setRolloverIcon(recipeSearchHover);
+        recipeSearchBtn.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
+        addRemoveMenu.setRolloverIcon(settingsHovered);
+        addRemoveMenu.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
 
         //BufferedImages
         BufferedImage ingredientBgListImg = new BufferedImage(bgList.getIconWidth(), bgList.getIconHeight(), BufferedImage.TYPE_INT_RGB);
@@ -78,7 +88,7 @@ public class MainFrame {
 
         //essential frame display stuff
         frame.setResizable(false);
-        frame.setSize(1200, 700);
+        frame.setSize(0, 0);
         frame.setLocationRelativeTo(null);
         panel.setLayout(null);
         recipeList.setLayout(new BoxLayout(recipeList, BoxLayout.Y_AXIS));
@@ -94,17 +104,16 @@ public class MainFrame {
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
-        exitBtn.setBounds(525, 600, 125, 25);
-        recipeListScroll.setBounds(875, 80, 300, 500);
+        exitBtn.setBounds(325, 1000, 125, 25);
+        recipeListScroll.setBounds(1500, 80, 300, 500);
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
-        ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
-        addRemoveMenu.setBounds(525, 500, 125, 25);
-        recipeSearchBtn.setBounds(525, 525, 125, 25);
+        ingredBgList.setBounds(-300, 15000, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
+        addRemoveMenu.setBounds(510, 1000, 125, 25);
+        recipeSearchBtn.setBounds(475, 1000, 245, 45);
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
-        //recipeList.setOpaque(false);
         sb.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 0), 20000));
         recipeListScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 255), 7));
         recipeList.setBackground(new Color(0, 0, 0, 120));
@@ -124,34 +133,32 @@ public class MainFrame {
 
         /* POST FRAME INITIALIZATION */
 
-        //Opening animation for the ingredientListBg
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        while (ingredientInitX < -90 || ingredientInitY > -95)
-        {
-            if (ingredientInitX < -90) ingredientInitX = 1 + ingredBgList.getBounds().x;
-            else if (ingredientInitY > -95) ingredientInitY = ingredBgList.getBounds().y - 1;
-            
+        //frame sizes up
+        Timer timer = new Timer(1, new SizeOut(frame));
+        timer.start();
+        ScheduledExecutorService scheduledExecutorService3 = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService3.schedule(() -> {
+            timer.stop();
+            frame.setBounds(100, 100, 1200, 700);
+            //Opening animation for the ingredientListBg STARTS-----------------------------------------------------------------------------------
+            Timer bgListTimer = new Timer(1, new InitIngredientBg(ingredBgList));
+            bgListTimer.start();
+            ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
             scheduledExecutorService.schedule(() -> {
-                ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredBgList.getWidth(), ingredBgList.getHeight());
-                
-            }, 1, TimeUnit.SECONDS);
-            if (ingredientInitX >= -90 && ingredientInitY <= -95)
-            {
+                bgListTimer.stop();
+                //Opening animation for all other components STARTS------------------------------------------------------------------------------
+                DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", 40, sb);
+                Timer iBtnListInit = new Timer(1, new OpeningSequence(ingredientListBtn, addRemoveMenu, exitBtn, recipeSearchBtn, recipeListScroll));
+                iBtnListInit.start();
+                ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
+                scheduledExecutorService2.schedule(() -> {
+                    iBtnListInit.stop();
+                    scheduledExecutorService2.shutdown();
+                }, 375, TimeUnit.MILLISECONDS); //init component anim stops
                 scheduledExecutorService.shutdown();
-            }
-        }
-        
-        DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", 40, sb);
-
-        //Opening animation for the array of ingredient buttons
-        Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn, 5));
-        iBtnListInit.start();
-        ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService2.schedule(() -> {
-            iBtnListInit.stop();
-            scheduledExecutorService2.shutdown();
-        }, 375, TimeUnit.MILLISECONDS);
-        
+            }, 250, TimeUnit.MILLISECONDS); //init bgList anim stops
+            scheduledExecutorService3.shutdown();
+        }, 525, TimeUnit.MILLISECONDS); //init sizeout frame anim stops
     }
     private void searchForValidRecipes(Connection con, JPanel recipePanel)
     {
@@ -379,6 +386,23 @@ class scrollListener implements MouseWheelListener
         }
     }
 }
+class InitIngredientBg implements ActionListener
+{
+    private JLabel bgList;
+    private int xPos = -170;
+    private int yPos = 500;
+    public InitIngredientBg(JLabel listBg)
+    {
+        bgList = listBg;
+    }
+    @Override
+    public void actionPerformed(ActionEvent e)
+    {
+        if (bgList.getBounds().x < -90) xPos += 90;
+        if (bgList.getBounds().y > -95) yPos -= 40;
+        bgList.setBounds(xPos, yPos, bgList.getWidth(), bgList.getHeight());
+    }
+}
 class AddButtons implements ActionListener, MouseListener
 {
     private JButton[] ingredBtn = null;
@@ -559,24 +583,95 @@ class ButtonSelected implements ActionListener
         selBtn.setBounds(finalX, selBtn.getBounds().y, 300, 35);
     }
 }
-class ButtonInit implements ActionListener
+class SizeOut implements ActionListener
 {
-    private JButton[] btn;
-    private int initX = 0;
-    public ButtonInit(JButton[] btnList, int x)
+    private JFrame frame;
+    private int xSize = 0;
+    private int xSpeed = 100;
+    private int ySpeed = 100;
+    private int ySize = 100;
+    public SizeOut(JFrame f)
     {
-        btn = btnList;
-        initX = x;
+        frame = f;
     }
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
+        if (frame.getSize().width < 1200)
+        {
+            xSize += xSpeed;
+            xSpeed -= 4;
+        }
+        if (frame.getSize().height < 700 && frame.getSize().width >= 1200)
+        {
+            ySize += ySpeed;
+            ySpeed -= 5;
+        }
+        frame.setBounds(100, 100, xSize, ySize);
+    }
+}
+class OpeningSequence implements ActionListener
+{
+    private JButton[] btn;
+    private JButton addRemoveBtn;
+    private JButton exitBtn;
+    private JButton recipeSearchBtn;
+    private int ingredientBtnX;
+    private int recipeBgX = 1500;
+    private int arY = 1000;
+    private int eBtnY = 1000;
+    private int rsY = 1000;
+    private JScrollPane recipePanel;
+    public OpeningSequence(JButton[] btnList, JButton arBtn, JButton eBtn, JButton rsBtn, JScrollPane recipeRes)
+    {
+        btn = btnList;
+        addRemoveBtn = arBtn;
+        exitBtn = eBtn;
+        recipeSearchBtn = rsBtn;
+        recipePanel = recipeRes;
+    }
+    @Override
+    public void actionPerformed(ActionEvent arg0)
+    {
+        ingredientBtnsAnim();
+        mainFrameBtnsAnim();
+        recipePanelAnim();
+    }
+    private void recipePanelAnim()
+    {
+        if (recipePanel.getBounds().x > 875) recipeBgX -= 50;
+        recipePanel.setBounds(recipeBgX, recipePanel.getBounds().y, 300, 500);
+    }
+    private void ingredientBtnsAnim()
+    {
         for (int i = 0; i < btn.length && btn[i] != null; i++)
         {
-            btn[i].setBounds(initX + btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
+            if (btn[i].getBounds().x < -10) ingredientBtnX += 1;
+            btn[i].setBounds(ingredientBtnX + btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
+        }
+    }
+    private void mainFrameBtnsAnim()
+    {
+        if (addRemoveBtn.getBounds().y > 575)
+        {
+            arY -= 25;
+            addRemoveBtn.setBounds(addRemoveBtn.getBounds().x, arY, 175, 35);
+        }
+
+        if (exitBtn.getBounds().y > 665)
+        {
+            eBtnY -= 25;
+            exitBtn.setBounds(exitBtn.getBounds().x, eBtnY, 125, 25);
+        }
+
+        if (recipeSearchBtn.getBounds().y > 535)
+        {
+            rsY -= 25;
+            recipeSearchBtn.setBounds(recipeSearchBtn.getBounds().x, rsY, 245, 45);
         }
     }
 }
+
 
 //TODO: Things to do
 /* 
