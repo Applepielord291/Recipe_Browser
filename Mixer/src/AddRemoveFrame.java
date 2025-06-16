@@ -152,7 +152,9 @@ public class AddRemoveFrame {
     {
         //access database and ask user what recipe to add.
         //after that, reload recipe list
-        UserRecipeInputFrame inputFrame = new UserRecipeInputFrame();
+        int length = MainFrame.getIngredientLength();
+        System.out.println(length);
+        UserRecipeInputFrame inputFrame = new UserRecipeInputFrame(length);
         inputFrame.userDisplayFrame(conn);
     }
 }

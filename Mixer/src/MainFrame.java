@@ -22,12 +22,11 @@ import java.util.concurrent.TimeUnit;
 
 public class MainFrame {
     private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
-    private JButton[] ingredientListBtn = null; //list of ingredientss
+    private static JButton[] ingredientListBtn = null; //list of ingredientss
     private JButton[] recipeListBtn = null; //list of recipes
     private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
     private JFrame frame = new JFrame();
     private String[] selectedIngredients = null;
-    private String[] requiredIngredients = null;
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
@@ -74,7 +73,6 @@ public class MainFrame {
         ingredientListBtn = new JButton[ingredientBtnCount+1];
         recipeListBtn = new JButton[recipeBtnCount];
         selectedIngredients = new String[ingredientBtnCount];
-        requiredIngredients = new String[recipeBtnCount];
 
         //scrollBar scales bases on buttonCount
         sb.setMaximum(ingredientBtnCount * 10);
@@ -169,20 +167,14 @@ public class MainFrame {
             while (rs.next())
             {
                 //reset values back to normal
-                String selected = "";
                 String[] tempSelIng = new String[selectedIngredients.length];
                 for (int i = 0; i < tempSelIng.length; i++)
                 {
                     tempSelIng[i] = selectedIngredients[i];
                 }
-                int validRecipeCount = 0;
                 int currentRow = 0;
                 int currentBegin = 0;
                 String[] req = new String[10];
-                for (int i = 0; i < tempSelIng.length; i++)
-                {
-                    selected += tempSelIng[i];
-                }
                 
                 //split single string into multiple
                 //count number of commas?
@@ -225,8 +217,10 @@ public class MainFrame {
                 {
                     
                     //save name to add it as a button
+                    System.out.println("REALL");
                     recipeListBtn[count] = new JButton(rs.getString(2));
                     recipeListBtn[count].setPreferredSize(new Dimension(265, 45));
+                    recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e));
                     recipePanel.add(recipeListBtn[count]);
                     recipePanel.revalidate();
                     //sql command to find row with exact same recipe ingredients and uhh just take the name and add it as the button in the frame
@@ -243,6 +237,12 @@ public class MainFrame {
             e.printStackTrace();
         }
     }
+    private void moreInfoIngredient(ActionEvent e)
+    {
+        System.out.println("real");
+        IngredientInfoFrame ingInfo = new IngredientInfoFrame();
+        ingInfo.DisplayFrame((JButton)e.getSource(), frame);
+    }
     private void displayAddRemoveMenu(Connection con)
     {
         AddRemoveFrame addRem = new AddRemoveFrame();
@@ -252,45 +252,11 @@ public class MainFrame {
     {
         frame.dispose();
     }
-    
-    private void DisplayRecipeBtns(JButton[] btns, JPanel panel, Connection con)
+    public static int getIngredientLength()
     {
-        Statement s = null;
-        ResultSet rs2 = null;
-        boolean runOnce = false;
-        for (int i = 0; i < btns.length; i++)
-        {
-            try
-            {
-                if (!runOnce)
-                {
-                    s = con.createStatement();
-                    s.execute("SELECT RecipeName FROM RecipeTable");
-                    rs2 = s.getResultSet();
-                    runOnce = true;
-                }
-
-                if (rs2.next())
-                {
-                    String command = "SELECT RecipeName FROM RecipeTable WHERE RecipeName = ?";
-                    PreparedStatement ps = con.prepareStatement(command);
-                    ps.setString(1, rs2.getString("RecipeName"));
-                    ResultSet rs = ps.executeQuery();
-                    if (rs.next())
-                    {
-                        btns[i] = new JButton(rs.getString("RecipeName"));
-                        btns[i].setPreferredSize(new Dimension(265, 45));
-                        panel.add(btns[i]);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            
-        }
+        return ingredientListBtn.length;
     }
+
     private void DisplayIngredientBtns(JPanel panel, JLabel bgAnim, JButton[] btnList, Connection conn, JLabel listBg, String command, String column, int initX, JScrollBar sb)
     {
         Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX, sb, selectedIngredients));
