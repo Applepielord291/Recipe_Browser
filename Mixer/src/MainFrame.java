@@ -81,7 +81,7 @@ public class MainFrame {
         frame.setSize(1200, 700);
         frame.setLocationRelativeTo(null);
         panel.setLayout(null);
-        recipeList.setLayout(new GridLayout(0, 1));
+        recipeList.setLayout(new BoxLayout(recipeList, BoxLayout.Y_AXIS));
         panel.setSize(1200, 700);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
@@ -211,10 +211,10 @@ public class MainFrame {
 
                 if (tester == 0)
                 {
-                    
                     //save name to add it as a button
                     recipeListBtn[count] = new JButton(rs.getString(2));
-                    recipeListBtn[count].setPreferredSize(new Dimension(265, 45));
+                    recipeListBtn[count].setMinimumSize(new Dimension(300, 45));
+                    recipeListBtn[count].setMaximumSize(new Dimension(300, 45));
                     recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e, con));
                     recipePanel.add(recipeListBtn[count]);
                     recipePanel.revalidate();
@@ -576,3 +576,13 @@ class ButtonInit implements ActionListener
         }
     }
 }
+
+//TODO: Things to do
+/* 
+ * rework select button animation (icon animation instead of movement animation)
+ * update database with more information
+ * make all the frames and buttons look better
+ * make transition animation when user launches program
+ * add searching for searching for ingredient buttons
+ * 
+ */
