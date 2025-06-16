@@ -95,7 +95,7 @@ public class MainFrame {
 
         //Setting component positions
         exitBtn.setBounds(525, 600, 125, 25);
-        recipeListScroll.setBounds(850, 40, 300, 500);
+        recipeListScroll.setBounds(875, 80, 300, 500);
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
@@ -104,9 +104,11 @@ public class MainFrame {
 
         //Visual Changes to JComponents
         sb.setOpaque(false);
-        recipeList.setOpaque(false);
+        //recipeList.setOpaque(false);
         sb.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 0), 20000));
         recipeListScroll.setBorder(BorderFactory.createLineBorder(new Color(0, 0, 0, 255), 7));
+        recipeList.setBackground(new Color(0, 0, 0, 120));
+        recipeListScroll.setBackground(new Color(0, 0, 0, 120));
 
         //adding components to the frame
         frame.add(panel);
@@ -140,7 +142,6 @@ public class MainFrame {
         }
         
         DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", 40, sb);
-        //DisplayRecipeBtns(recipeListBtn, recipeList, connection);
 
         //Opening animation for the array of ingredient buttons
         Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn, 5));
@@ -216,7 +217,10 @@ public class MainFrame {
                     recipeListBtn[count].setMinimumSize(new Dimension(300, 45));
                     recipeListBtn[count].setMaximumSize(new Dimension(300, 45));
                     recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e, con));
-                    recipePanel.add(recipeListBtn[count]);
+                    recipeListBtn[count].setFocusPainted(false);
+                    recipeListBtn[count].setForeground(Color.BLACK);
+                    
+                    recipePanel.add(recipeListBtn[count]); 
                     recipePanel.revalidate();
                     //sql command to find row with exact same recipe ingredients and uhh just take the name and add it as the button in the frame
                     count = count+1;
@@ -484,7 +488,6 @@ class AddButtons implements ActionListener, MouseListener
             int fin = 0;
             int speed = 0;
             boolean x = false;
-            
             for (int i = 0; i < ingredientSelected.length; i++)
             {
                 for (int j = 0; j < ingredientSelected.length; j++)
@@ -542,13 +545,11 @@ class ButtonSelected implements ActionListener
 {
     private JButton selBtn;
     private int finalX;
-    //private int goal;
     private int speed;
     public ButtonSelected(JButton btn, int fin, int spd)
     {
         selBtn = btn;
         finalX = selBtn.getBounds().x;
-        //goal = selBtn.getBounds().x + fin;
         speed = spd;
     }
     @Override
