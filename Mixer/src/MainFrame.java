@@ -93,7 +93,7 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         startBtn.addActionListener(e -> userClickedStart());
         addRemoveMenu.addActionListener(e -> displayAddRemoveMenu(connection));
-        recipeSearchBtn.addActionListener(e -> searchForValidRecipes(connection));
+        recipeSearchBtn.addActionListener(e -> searchForValidRecipes(connection, recipeList));
 
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
@@ -146,7 +146,7 @@ public class MainFrame {
         }
         
         DisplayIngredientBtns(panel, bgAnim, ingredientListBtn, connection, ingredBgList, "SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", 40, sb);
-        DisplayRecipeBtns(recipeListBtn, recipeList, connection);
+        //DisplayRecipeBtns(recipeListBtn, recipeList, connection);
 
         //Opening animation for the array of ingredient buttons
         Timer iBtnListInit = new Timer(1000/60, new ButtonInit(ingredientListBtn, 5));
@@ -158,11 +158,10 @@ public class MainFrame {
         }, 375, TimeUnit.MILLISECONDS);
         
     }
-    private void searchForValidRecipes(Connection con)
+    private void searchForValidRecipes(Connection con, JPanel recipePanel)
     {
-        System.out.println("\n");
-        
-        
+        int count = 0;
+        recipePanel.removeAll();
         try
         {
             Statement s = con.createStatement();
@@ -171,28 +170,19 @@ public class MainFrame {
             {
                 //reset values back to normal
                 String selected = "";
-                System.out.print("selected Ingredients array: ");
-                for (int i = 0; i < selectedIngredients.length; i++)
-                {
-                    System.out.print(selectedIngredients[i] + " ");
-                }
                 String[] tempSelIng = new String[selectedIngredients.length];
                 for (int i = 0; i < tempSelIng.length; i++)
                 {
                     tempSelIng[i] = selectedIngredients[i];
                 }
-                boolean x = false;
+                int validRecipeCount = 0;
                 int currentRow = 0;
                 int currentBegin = 0;
                 String[] req = new String[10];
-
-                System.out.println();
-
                 for (int i = 0; i < tempSelIng.length; i++)
                 {
                     selected += tempSelIng[i];
                 }
-                System.out.println("selected: " + selected);
                 
                 //split single string into multiple
                 //count number of commas?
@@ -214,7 +204,6 @@ public class MainFrame {
                         tester++;
                     }
                 }
-                System.out.println("Tester init: " + tester);
                 for (int i = 0; i < tempSelIng.length; i++)
                 {
                     for (int j = 0; j < req.length; j++)
@@ -222,7 +211,6 @@ public class MainFrame {
                         if (tempSelIng[i]!=null && req[j]!=null && tempSelIng[i].toLowerCase().equals(req[j].toLowerCase()))
                         {
                             tester = tester-1;
-                            System.out.println("Tester: "+tester);
 
                             //change to null for the valid recipe check
                             tempSelIng[i] = null;
@@ -235,11 +223,18 @@ public class MainFrame {
 
                 if (tester == 0)
                 {
-                    System.out.println("recipe valid.");
+                    
+                    //save name to add it as a button
+                    recipeListBtn[count] = new JButton(rs.getString(2));
+                    recipeListBtn[count].setPreferredSize(new Dimension(265, 45));
+                    recipePanel.add(recipeListBtn[count]);
+                    recipePanel.revalidate();
+                    //sql command to find row with exact same recipe ingredients and uhh just take the name and add it as the button in the frame
+                    count = count+1;
                 }
                 else
                 {
-                    System.out.println("recipe invalid.");
+                    //just end it here GRAHHH
                 }
             }
         }
