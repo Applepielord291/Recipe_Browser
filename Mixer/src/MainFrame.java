@@ -234,7 +234,6 @@ public class MainFrame {
     }
     private void moreInfoIngredient(ActionEvent e, Connection connection)
     {
-        System.out.println("real");
         IngredientInfoFrame ingInfo = new IngredientInfoFrame();
         ingInfo.DisplayFrame((JButton)e.getSource(), frame, connection);
     }
