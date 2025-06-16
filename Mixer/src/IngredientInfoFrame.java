@@ -1,23 +1,53 @@
+import java.sql.*;
+
 import javax.swing.*;
 
 public class IngredientInfoFrame {
-    public void DisplayFrame(JButton btn, JFrame mFrame)
+    public void DisplayFrame(JButton btn, JFrame mFrame, Connection con)
     {
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
+        JLabel nameTitleLbl = new JLabel("Recipe Name:");
+        JLabel recipeName = new JLabel(btn.getText());
+        JLabel recipeRequirementsLbl = new JLabel("Recipe Requirements");
+        JLabel recipeRequirements = new JLabel(getIng(con, btn));
+
         frame.setUndecorated(true);
 
         frame.setResizable(false);
-        frame.setSize(0, 0);
+        frame.setSize(700, 500);
         frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
         panel.setSize(700, 500);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
+        nameTitleLbl.setBounds(10, 10, 150, 25);
+        recipeName.setBounds(10, 40, 150, 25);
+
         frame.add(panel);
+        panel.add(nameTitleLbl);
+        panel.add(recipeName);
 
         frame.setVisible(true);
+    }
+    private String getIng(Connection con, JButton selBtn)
+    {
+        try
+        {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM RecipeTable WHERE RecipeName = ?");
+            ps.setString(1, selBtn.getText());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+            {
+                return rs.getString(2);
+            }
+            else return null;
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 }

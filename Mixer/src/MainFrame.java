@@ -217,10 +217,9 @@ public class MainFrame {
                 {
                     
                     //save name to add it as a button
-                    System.out.println("REALL");
                     recipeListBtn[count] = new JButton(rs.getString(2));
                     recipeListBtn[count].setPreferredSize(new Dimension(265, 45));
-                    recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e));
+                    recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e, con));
                     recipePanel.add(recipeListBtn[count]);
                     recipePanel.revalidate();
                     //sql command to find row with exact same recipe ingredients and uhh just take the name and add it as the button in the frame
@@ -237,11 +236,11 @@ public class MainFrame {
             e.printStackTrace();
         }
     }
-    private void moreInfoIngredient(ActionEvent e)
+    private void moreInfoIngredient(ActionEvent e, Connection connection)
     {
         System.out.println("real");
         IngredientInfoFrame ingInfo = new IngredientInfoFrame();
-        ingInfo.DisplayFrame((JButton)e.getSource(), frame);
+        ingInfo.DisplayFrame((JButton)e.getSource(), frame, connection);
     }
     private void displayAddRemoveMenu(Connection con)
     {
