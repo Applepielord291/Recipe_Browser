@@ -25,7 +25,7 @@ public class UserInputFrame {
         frame.setLocationRelativeTo(null);
         panel.setLayout(null);
         panel.setSize(700, 500);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
         ingredientNameTxt.setBounds(20, 20, 200, 25);

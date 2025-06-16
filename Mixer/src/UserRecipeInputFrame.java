@@ -37,7 +37,7 @@ public class UserRecipeInputFrame {
         panel.setLayout(null);
         ingredientBg.setLayout(new FlowLayout());
         panel.setSize(700, 500);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
         ingredientNameTxt.setBounds(20, 20, 200, 25);
