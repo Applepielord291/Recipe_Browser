@@ -2,6 +2,8 @@ import javax.swing.*;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.*;
 
 public class UserRemoveInfo {
@@ -18,7 +20,7 @@ public class UserRemoveInfo {
     }
     public void DisplayFrame() 
     {
-        JFrame frame = new JFrame();
+        JDialog frame = new JDialog();
         JPanel panel = new JPanel();
         JTextField ingredientNameTxt = new JTextField(30);
         JButton confirmBtn = new JButton("Confirm");
@@ -41,6 +43,17 @@ public class UserRemoveInfo {
 
         ingredientNameTxt.add(test, BorderLayout.LINE_END);
 
+        frame.setModal(false);
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                frame.dispose();
+            }
+            @Override
+            public void windowGainedFocus(WindowEvent e) {}
+        });
+
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, validCheck));
 
         frame.add(panel);
@@ -49,7 +62,7 @@ public class UserRemoveInfo {
         panel.add(validCheck);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextField txt, JFrame frame, JLabel validLbl)
+    private void userClickedConfirm(JTextField txt, JDialog frame, JLabel validLbl)
     {
         String res = txt.getText();
         boolean found = false;

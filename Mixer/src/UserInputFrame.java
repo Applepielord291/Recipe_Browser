@@ -1,4 +1,6 @@
 import java.awt.Frame;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.*;
 import javax.swing.*;
 
@@ -13,7 +15,7 @@ public class UserInputFrame {
     //Design made by Nigel
     public void userDisplayFrame(Connection conn)
     {
-        JFrame frame = new JFrame();
+        JDialog frame = new JDialog();
         JPanel panel = new JPanel();
         JTextPane ingredientNameTxt = new JTextPane();
         JButton confirmBtn = new JButton("Confirm");
@@ -29,6 +31,17 @@ public class UserInputFrame {
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
 
+        frame.setModal(false);
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                frame.dispose();
+            }
+            @Override
+            public void windowGainedFocus(WindowEvent e) {}
+        });
+
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
         frame.add(panel);
@@ -36,7 +49,7 @@ public class UserInputFrame {
         panel.add(confirmBtn);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextPane txt, JFrame Tframe, Connection conn)
+    private void userClickedConfirm(JTextPane txt, JDialog Tframe, Connection conn)
     {
         String res = txt.getText();
         txt.setText("");

@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.*;
 
 public class UserRecipeInputFrame {
@@ -16,7 +18,7 @@ public class UserRecipeInputFrame {
     }
     public void userDisplayFrame(Connection conn) 
     {
-        JFrame frame = new JFrame();
+        JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
         JTextPane ingredientNameTxt = new JTextPane();
@@ -41,6 +43,17 @@ public class UserRecipeInputFrame {
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
         ingBgScroll.setBounds(325, 1, 300, 300);
+
+        frame.setModal(false);
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                frame.dispose();
+            }
+            @Override
+            public void windowGainedFocus(WindowEvent e) {}
+        });
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
@@ -87,7 +100,7 @@ public class UserRecipeInputFrame {
             }
         }
     }
-    private void userClickedConfirm(JTextPane txt, JFrame frame, Connection conn)
+    private void userClickedConfirm(JTextPane txt, JDialog frame, Connection conn)
     {
         String res = txt.getText();
         txt.setText("");

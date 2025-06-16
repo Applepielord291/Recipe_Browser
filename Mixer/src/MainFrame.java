@@ -50,7 +50,6 @@ public class MainFrame {
         //add images to buttons later
         JButton addRemoveMenu = new JButton("Settings");
         JButton exitBtn = new JButton("Exit");
-        JButton startBtn = new JButton("More Information");
         JButton recipeSearchBtn = new JButton("Recipe Search");
 
         //ImageIcons
@@ -89,7 +88,6 @@ public class MainFrame {
 
         //Component Listeners
         exitBtn.addActionListener(e -> userClickedExit(frame));
-        startBtn.addActionListener(e -> userClickedStart());
         addRemoveMenu.addActionListener(e -> displayAddRemoveMenu(connection));
         recipeSearchBtn.addActionListener(e -> searchForValidRecipes(connection, recipeList));
 
@@ -98,7 +96,6 @@ public class MainFrame {
         //Setting component positions
         exitBtn.setBounds(525, 600, 125, 25);
         recipeListScroll.setBounds(850, 40, 300, 500);
-        startBtn.setBounds(512, 550, 150, 30);
         bgAnim.setBounds(0, 0, 1200, 700);
         sb.setBounds(0, -900, 350, 1500);
         ingredBgList.setBounds(ingredientInitX, ingredientInitY, ingredientBgListImgFinal.getWidth(), ingredientBgListImgFinal.getHeight());
@@ -116,7 +113,6 @@ public class MainFrame {
         panel.add(ingredBgList);
         panel.add(recipeListScroll);
         panel.add(exitBtn);
-        panel.add(startBtn);
         panel.add(sb);
         panel.add(addRemoveMenu);
         panel.add(recipeSearchBtn);
@@ -309,11 +305,6 @@ public class MainFrame {
             frame.dispose();
             System.exit(0);
         }
-    }
-    
-    private void userClickedStart()
-    {
-        //Nothing right now
     }
     //this will be used to initialize the connection for databases
     private Connection initConnection()

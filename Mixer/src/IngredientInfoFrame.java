@@ -1,5 +1,6 @@
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.sql.*;
-
 import javax.swing.*;
 
 public class IngredientInfoFrame {
@@ -23,12 +24,27 @@ public class IngredientInfoFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
+        frame.setModal(false);
+        frame.addWindowFocusListener(new WindowFocusListener() {
+            @Override
+            public void windowLostFocus(WindowEvent e)
+            {
+                frame.dispose();
+            }
+            @Override
+            public void windowGainedFocus(WindowEvent e) {}
+        });
+
         nameTitleLbl.setBounds(10, 10, 150, 25);
         recipeName.setBounds(10, 40, 150, 25);
+        recipeRequirementsLbl.setBounds(150, 10, 150, 25);
+        recipeRequirements.setBounds(150, 40, 200, 50);
 
         frame.add(panel);
         panel.add(nameTitleLbl);
         panel.add(recipeName);
+        panel.add(recipeRequirementsLbl);
+        panel.add(recipeRequirements);
 
         frame.setVisible(true);
     }
@@ -41,7 +57,7 @@ public class IngredientInfoFrame {
             ResultSet rs = ps.executeQuery();
             if (rs.next())
             {
-                return rs.getString(2);
+                return rs.getString(3);
             }
             else return null;
         }
