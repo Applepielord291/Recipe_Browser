@@ -89,6 +89,7 @@ public class UserRecipeInputFrame {
     private void userClickedExit(JDialog frame)
     {
         canClose = true;
+        frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
         frame.dispose();
     }
     private void userImageSearch(JFileChooser fc, JPanel p, JLabel bg)

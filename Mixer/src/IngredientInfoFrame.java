@@ -1,5 +1,3 @@
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.sql.*;
 import javax.swing.*;
 
@@ -48,6 +46,7 @@ public class IngredientInfoFrame {
     private void userClickedExit(JDialog frame)
     {
         canClose = true;
+        frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
         frame.dispose();
     }
     private String getIng(Connection con, JButton selBtn)

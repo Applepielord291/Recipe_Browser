@@ -67,6 +67,7 @@ public class UserRemoveInfo {
     private void userClickedExit(JDialog frame)
     {
         canClose = true;
+        frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
         frame.dispose();
     }
     private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
