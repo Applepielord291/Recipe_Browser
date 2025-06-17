@@ -1,6 +1,9 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -32,14 +35,20 @@ public class UserRecipeInputFrame {
         JTextPane recipeInstructions = new JTextPane();
 
         ImageIcon frameBg = new ImageIcon("Mixer\\Graphics\\Background\\RecipeSelectionBg.png");
+        ImageIcon confirmNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmNormal.png");
+        ImageIcon confirmHover = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmHovered.gif");
+        ImageIcon exitNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
+        ImageIcon exitHover = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
         JLabel frameBgLbl = new JLabel(frameBg);
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new FileNameExtensionFilter("Image Files", "jpg", "png", "gif", "jpeg"));
 
-        JButton confirmBtn = new JButton("Confirm");
+        JButton confirmBtn = new JButton(confirmNormal);
+        confirmBtn.setRolloverIcon(confirmHover);
         JButton selectBtn = new JButton("Select Image");
-        JButton exitBtn = new JButton("Exit");
+        JButton exitBtn = new JButton(exitNormal);
+        exitBtn.setRolloverIcon(exitHover);
 
         JPanel ingredientBg = new JPanel();
 
@@ -58,7 +67,7 @@ public class UserRecipeInputFrame {
 
         ingredientNameTxt.setBounds(40, 60, 200, 25);
         confirmBtn.setBounds(250, 480, 200, 25);
-        exitBtn.setBounds(100, 480, 200, 25);
+        exitBtn.setBounds(50, 480, 125, 25);
         ingBgScroll.setBounds(40, 200, 200, 135);
         linkTxt.setBounds(315, 60, 200, 25);
         selectBtn.setBounds(315, 195, 200, 25);
@@ -101,7 +110,7 @@ public class UserRecipeInputFrame {
             imgFilePath = file.getAbsolutePath();
             ImageIcon selIcon = new ImageIcon(imgFilePath);
             JLabel selLbl = new JLabel(selIcon);
-            selLbl.setBounds(315, 180, 200, 200);
+            selLbl.setBounds(315, 190, 200, 200);
             p.remove(bg);
             p.add(selLbl);
             p.add(bg);
@@ -123,6 +132,7 @@ public class UserRecipeInputFrame {
     {
         ingredientList = new JButton[ingredientLength];
         selectedIngredients = new String[ingredientLength];
+        ImageIcon btnIcon = new ImageIcon("Mixer\\Graphics\\Buttons\\ingRec.png");
         try
         {
             int i = 0;
@@ -130,11 +140,16 @@ public class UserRecipeInputFrame {
             ResultSet rs = s.executeQuery("SELECT * FROM Ingredients");
             while (rs.next())
             {
-                ingredientList[i] = new JButton(rs.getString(2));
+                ingredientList[i] = new JButton(rs.getString(2), btnIcon);
+                ingredientList[i].setHorizontalTextPosition(JButton.CENTER);
                 ingredientList[i].setMinimumSize(new Dimension(200, 35));
                 ingredientList[i].setMaximumSize(new Dimension(200, 35));
                 ingredientList[i].addActionListener(e -> userClickedIngredient(e));
+                ingredientList[i].setForeground(Color.WHITE);
+                ingredientList[i].setFont(new Font("Arial", Font.PLAIN, 14));
+                
                 p.add(ingredientList[i]);
+                p.revalidate(); p.repaint();
                 i++;
             }
         }
@@ -149,6 +164,8 @@ public class UserRecipeInputFrame {
         JButton selBtn = (JButton)e.getSource();
         String txt = selBtn.getText();
         boolean x = false;
+        ImageIcon btnIconUnsel = new ImageIcon("Mixer\\Graphics\\Buttons\\ingRec.png");
+        ImageIcon btnIconSel = new ImageIcon("Mixer\\Graphics\\Buttons\\ingRecSel.gif");
         for (int i = 0; i < selectedIngredients.length; i++)
         {
             for (int j = 0; j < selectedIngredients.length; j++)
@@ -157,6 +174,9 @@ public class UserRecipeInputFrame {
                 {
                     selectedIngredients[j] = null;
                     //place unselected icon here
+                    selBtn.setMinimumSize(new Dimension(200, 35));
+                    selBtn.setMaximumSize(new Dimension(200, 35));
+                    selBtn.setIcon(btnIconUnsel);
                     x = true;
                 }
             }
@@ -165,6 +185,9 @@ public class UserRecipeInputFrame {
             {
                 selectedIngredients[i] = txt;
                 //place selected icon here
+                selBtn.setMinimumSize(new Dimension(200, 35));
+                selBtn.setMaximumSize(new Dimension(200, 35));
+                selBtn.setIcon(btnIconSel);
                 x = true;
                 break;
             }
@@ -202,6 +225,7 @@ public class UserRecipeInputFrame {
             Main main = new Main();
             main.reloadProgram();
             canClose = true;
+            frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
             ps.close();
         }
         catch(Exception e)

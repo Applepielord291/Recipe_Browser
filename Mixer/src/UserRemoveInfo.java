@@ -31,8 +31,7 @@ public class UserRemoveInfo {
 
         frame.setUndecorated(true);
 
-        JLabel test = new JLabel("test");
-        JLabel validCheck = new JLabel("tt");
+        JLabel validCheck = new JLabel("");
 
         frame.setResizable(false);
         frame.setSize(700, 500);
@@ -46,9 +45,7 @@ public class UserRemoveInfo {
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
         validCheck.setBounds(20, 100, 100, 25);
-        exitBtn.setBounds(150, 150, 100, 25);
-
-        ingredientNameTxt.add(test, BorderLayout.LINE_END);
+        exitBtn.setBounds(300, 300, 100, 25);
 
         frame.setModal(false);
         frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
@@ -62,6 +59,7 @@ public class UserRemoveInfo {
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         panel.add(validCheck);
+        panel.add(exitBtn);
         frame.setVisible(true);
     }
     private void userClickedExit(JDialog frame)
@@ -114,6 +112,9 @@ public class UserRemoveInfo {
                 }
                 Main main = new Main();
                 main.reloadProgram();
+                canClose = true;
+                frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
+                ps.close();
             }
         }
         catch (Exception e)

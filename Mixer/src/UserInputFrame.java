@@ -23,14 +23,20 @@ public class UserInputFrame {
         JPanel panel = new JPanel();
 
         ImageIcon frameBg = new ImageIcon("Mixer\\Graphics\\Background\\InsertIngredientBg.png");
+        ImageIcon confirmNormalIcon = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmNormal.png");
+        ImageIcon confirmHoveredIcon = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmHovered.gif");
+        ImageIcon exitNormalIcon = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
+        ImageIcon exitHoveredIcon = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
         JLabel bgLbl = new JLabel(frameBg);
 
         JTextField ingredientNameTxt = new JTextField();
         ingredientNameTxt.setBorder(BorderFactory.createEmptyBorder());
         ingredientNameTxt.setFont(new Font("Arial", 0, 20));
 
-        JButton confirmBtn = new JButton("Confirm");
-        JButton exitBtn = new JButton("Exit");
+        JButton confirmBtn = new JButton(confirmNormalIcon);
+        confirmBtn.setRolloverIcon(confirmHoveredIcon);
+        JButton exitBtn = new JButton(exitNormalIcon);
+        exitBtn.setRolloverIcon(exitHoveredIcon);
 
         frame.setUndecorated(true);
 
@@ -43,8 +49,8 @@ public class UserInputFrame {
         frame.setTitle("The Cooking Station");
 
         ingredientNameTxt.setBounds(25, 65, 345, 65);
-        confirmBtn.setBounds(30, 150, 200, 25);
-        exitBtn.setBounds(30, 190, 200, 25);
+        confirmBtn.setBounds(105, 150, 200, 25);
+        exitBtn.setBounds(140, 190, 125, 25);
         bgLbl.setBounds(0, 0, 400, 400);
 
         frame.setModal(false);
@@ -98,6 +104,9 @@ public class UserInputFrame {
             }
             Main main = new Main();
             main.reloadProgram();
+            canClose = true;
+            Tframe.addWindowFocusListener(new DialogCloseManager(Tframe, canClose));
+            ps.close();
         }
         catch(Exception e)
         {
