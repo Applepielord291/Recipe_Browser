@@ -23,29 +23,39 @@ public class UserRemoveInfo {
     }
     public void DisplayFrame() 
     {
+        ImageIcon removeElementBg = new ImageIcon("Mixer\\Graphics\\Background\\RemoveElementBg.png");
+        ImageIcon confirmNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmNormal.png");
+        ImageIcon confirmHover = new ImageIcon("Mixer\\Graphics\\Buttons\\ConfirmHovered.gif");
+        ImageIcon exitNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
+        ImageIcon exitHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
+        JLabel frameBg = new JLabel(removeElementBg);
+
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
-        JTextField ingredientNameTxt = new JTextField(30);
-        JButton confirmBtn = new JButton("Confirm");
-        JButton exitBtn = new JButton("exit");
+        JTextField ingredientNameTxt = new JTextField();
+        JButton confirmBtn = new JButton(confirmNormal);
+        confirmBtn.setRolloverIcon(confirmHover);
+        JButton exitBtn = new JButton(exitNormal);
+        exitBtn.setRolloverIcon(exitHovered);
 
         frame.setUndecorated(true);
 
         JLabel validCheck = new JLabel("");
 
         frame.setResizable(false);
-        frame.setSize(700, 500);
+        frame.setSize(400, 400);
         frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
         ingredientNameTxt.setLayout(new BorderLayout());
-        panel.setSize(700, 500);
+        panel.setSize(400, 400);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
-        ingredientNameTxt.setBounds(20, 20, 200, 25);
-        confirmBtn.setBounds(20, 50, 200, 25);
+        ingredientNameTxt.setBounds(25, 65, 345, 65);
+        confirmBtn.setBounds(105, 150, 200, 25);
         validCheck.setBounds(20, 100, 100, 25);
-        exitBtn.setBounds(300, 300, 100, 25);
+        exitBtn.setBounds(140, 190, 125, 25);
+        frameBg.setBounds(0, 0, 400, 400);
 
         frame.setModal(false);
         frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
@@ -60,6 +70,8 @@ public class UserRemoveInfo {
         panel.add(confirmBtn);
         panel.add(validCheck);
         panel.add(exitBtn);
+
+        panel.add(frameBg);
         frame.setVisible(true);
     }
     private void userClickedExit(JDialog frame)
