@@ -1,7 +1,12 @@
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.sql.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.*;
 
 /* Script created by Nigel Garcia
@@ -13,23 +18,32 @@ import javax.swing.*;
 public class UserInputFrame {
     //Frame and functionality developed by Shannon
     //Design made by Nigel
-    public void userDisplayFrame(Connection conn)
+    public void userDisplayFrame(Connection conn, JFrame mFrame)
     {
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
-        JTextPane ingredientNameTxt = new JTextPane();
+
+        ImageIcon frameBg = new ImageIcon("Mixer\\Graphics\\Background\\InsertIngredientBg.png");
+        JLabel bgLbl = new JLabel(frameBg);
+
+        JTextField ingredientNameTxt = new JTextField();
+        ingredientNameTxt.setBorder(BorderFactory.createEmptyBorder());
+        ingredientNameTxt.setFont(new Font("Arial", 0, 20));
         JButton confirmBtn = new JButton("Confirm");
 
+        frame.setUndecorated(true);
+
         frame.setResizable(false);
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(null);
+        frame.setSize(0, 0);
+        frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
-        panel.setSize(700, 500);
+        panel.setSize(400, 400);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
-        ingredientNameTxt.setBounds(20, 20, 200, 25);
-        confirmBtn.setBounds(20, 50, 200, 25);
+        ingredientNameTxt.setBounds(25, 65, 345, 65);
+        confirmBtn.setBounds(30, 150, 200, 25);
+        bgLbl.setBounds(0, 0, 400, 400);
 
         frame.setModal(false);
         frame.addWindowFocusListener(new WindowFocusListener() {
@@ -44,15 +58,29 @@ public class UserInputFrame {
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
+        startFrameTransition(frame, false, 100);
+
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
+
+        panel.add(bgLbl);
         frame.setVisible(true);
     }
-    private void userClickedConfirm(JTextPane txt, JDialog Tframe, Connection conn)
+    private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {
-        String res = txt.getText();
-        txt.setText("");
+        Timer timer = new Timer(1/2, new FrameTransition(frame, speed, 400));
+        timer.start();
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.schedule(() -> {
+            timer.stop();
+        }, 1, TimeUnit.SECONDS);
+        scheduledExecutorService.shutdown();
+    }
+    private void userClickedConfirm(JTextField ingredientNameTxt, JDialog Tframe, Connection conn)
+    {
+        String res = ingredientNameTxt.getText();
+        ingredientNameTxt.setText("");
         System.out.println(res);
         try
         {

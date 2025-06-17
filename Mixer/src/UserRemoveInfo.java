@@ -5,18 +5,23 @@ import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.sql.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class UserRemoveInfo {
     private String command;
     private String removeCommand;
     private String column;
     private Connection conn;
-    public UserRemoveInfo(String com, String col, Connection con, String rem)
+    private JFrame mFrame;
+    public UserRemoveInfo(String com, String col, Connection con, String rem, JFrame frame)
     {
         command = com;
         column = col;
         conn = con;
         removeCommand = rem;
+        mFrame = frame;
     }
     public void DisplayFrame() 
     {
@@ -30,7 +35,7 @@ public class UserRemoveInfo {
 
         frame.setResizable(false);
         frame.setSize(700, 500);
-        frame.setLocationRelativeTo(null);
+        frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
         ingredientNameTxt.setLayout(new BorderLayout());
         panel.setSize(700, 500);
@@ -56,11 +61,23 @@ public class UserRemoveInfo {
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, validCheck));
 
+        startFrameTransition(frame, false, 100);
+
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         panel.add(validCheck);
         frame.setVisible(true);
+    }
+    private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
+    {
+        Timer timer = new Timer(1/2, new FrameTransition(frame, speed, 400));
+        timer.start();
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.schedule(() -> {
+            timer.stop();
+        }, 1, TimeUnit.SECONDS);
+        scheduledExecutorService.shutdown();
     }
     private void userClickedConfirm(JTextField txt, JDialog frame, JLabel validLbl)
     {

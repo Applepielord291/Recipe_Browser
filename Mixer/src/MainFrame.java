@@ -157,6 +157,9 @@ public class MainFrame {
                 ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
                 scheduledExecutorService2.schedule(() -> {
                     iBtnListInit.stop();
+                    addRemoveMenu.setBounds(addRemoveMenu.getBounds().x, 585, 175, 35);
+                    exitBtn.setBounds(exitBtn.getBounds().x, 665, 125, 25);
+                    recipeSearchBtn.setBounds(recipeSearchBtn.getBounds().x, 535, 245, 45);
                     scheduledExecutorService2.shutdown();
                 }, 375, TimeUnit.MILLISECONDS); //init component anim stops
                 scheduledExecutorService.shutdown();
@@ -230,7 +233,8 @@ public class MainFrame {
                     recipeListBtn[count].setMaximumSize(new Dimension(300, 45));
                     recipeListBtn[count].addActionListener(e -> moreInfoIngredient(e, con));
                     recipeListBtn[count].setFocusPainted(false);
-                    recipeListBtn[count].setForeground(Color.BLACK);
+                    recipeListBtn[count].setBackground(new Color(0, 0, 0, 175));
+                    recipeListBtn[count].setForeground(new Color(255, 255, 255, 200));
                     
                     recipePanel.add(recipeListBtn[count]); 
                     recipePanel.revalidate();
@@ -427,7 +431,7 @@ class AddButtons implements ActionListener, MouseListener
     private ResultSet rs = null;
     private String[] ingredientSelected = null;
     private ImageIcon ingredientBtnUnselected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientUnselected.png");
-    private ImageIcon ingredientBtnHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientHovered.png");
+    //private ImageIcon ingredientBtnHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientHovered.png");
     private ImageIcon ingredientBtnSelected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientSelected.gif");
     public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s, String[] stringList)
     {
@@ -630,35 +634,31 @@ class OpeningSequence implements ActionListener
     private void recipePanelAnim()
     {
         if (recipePanel.getBounds().x > 875) recipeBgX -= 50;
+        else recipeBgX = 875;
         recipePanel.setBounds(recipeBgX, recipePanel.getBounds().y, 300, 500);
     }
     private void ingredientBtnsAnim()
     {
         for (int i = 0; i < btn.length && btn[i] != null; i++)
         {
-            if (btn[i].getBounds().x < -10) ingredientBtnX += 1;
-            btn[i].setBounds(ingredientBtnX + btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
+            if (btn[i].getBounds().x < 125) btn[i].setBounds(3 + btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
+            else btn[i].setBounds(btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
         }
     }
     private void mainFrameBtnsAnim()
     {
-        if (addRemoveBtn.getBounds().y > 575)
-        {
-            arY -= 25;
-            addRemoveBtn.setBounds(addRemoveBtn.getBounds().x, arY, 175, 35);
-        }
+        if (addRemoveBtn.getBounds().y > 585) arY -= 30;
+        else arY = 585;
 
-        if (exitBtn.getBounds().y > 665)
-        {
-            eBtnY -= 25;
-            exitBtn.setBounds(exitBtn.getBounds().x, eBtnY, 125, 25);
-        }
+        if (exitBtn.getBounds().y > 665) eBtnY -= 30;
+        else eBtnY = 665;
 
-        if (recipeSearchBtn.getBounds().y > 535)
-        {
-            rsY -= 25;
-            recipeSearchBtn.setBounds(recipeSearchBtn.getBounds().x, rsY, 245, 45);
-        }
+        if (recipeSearchBtn.getBounds().y > 535) rsY -= 30;
+        else rsY = 535;
+
+        addRemoveBtn.setBounds(addRemoveBtn.getBounds().x, arY, 175, 35);
+        exitBtn.setBounds(exitBtn.getBounds().x, eBtnY, 125, 25);
+        recipeSearchBtn.setBounds(recipeSearchBtn.getBounds().x, rsY, 245, 45);
     }
 }
 

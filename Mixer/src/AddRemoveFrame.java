@@ -1,7 +1,5 @@
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -40,10 +38,10 @@ public class AddRemoveFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
-        addIngredientBtn.addActionListener(e -> userAddIngredient(connection));
-        addRecipeBtn.addActionListener(e -> userAddRecipe(connection));
-        removeIngredientBtn.addActionListener(e -> userRemove(true, connection));
-        removeRecipeBtn.addActionListener(e -> userRemove(false, connection));
+        addIngredientBtn.addActionListener(e -> userAddIngredient(connection, mFrame));
+        addRecipeBtn.addActionListener(e -> userAddRecipe(connection, mFrame));
+        removeIngredientBtn.addActionListener(e -> userRemove(true, connection, mFrame));
+        removeRecipeBtn.addActionListener(e -> userRemove(false, connection, mFrame));
         cancelBtn.addActionListener(e -> userClickedCancel(frame));
 
         frame.setModal(false);
@@ -116,7 +114,7 @@ public class AddRemoveFrame {
     }
     private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {
-        Timer timer = new Timer(1/2, new FrameTransition(frame, speed));
+        Timer timer = new Timer(1/2, new FrameTransition(frame, speed, 400));
         timer.start();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
         scheduledExecutorService.schedule(() -> {
@@ -128,55 +126,33 @@ public class AddRemoveFrame {
     {
         frame.dispose();
     }
-    private void userRemove(boolean which, Connection con)
+    private void userRemove(boolean which, Connection con, JFrame mFrame)
     {
         if (which)
         {
-            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", con, "DELETE * FROM Ingredients WHERE IngredientName = ?");
+            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM Ingredients WHERE IngredientName = ?", "IngredientName", con, "DELETE * FROM Ingredients WHERE IngredientName = ?", mFrame);
             uRemove.DisplayFrame();
         }
         else
         {
-            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?");
+            UserRemoveInfo uRemove = new UserRemoveInfo("SELECT * FROM RecipeTable WHERE RecipeName = ?", "RecipeName", con, "DELETE FROM RecipeTable WHERE RecipeName = ?", mFrame);
             uRemove.DisplayFrame();
         }
     }
-    private void userAddIngredient(Connection conn)
+    private void userAddIngredient(Connection conn, JFrame mFrame)
     {
         //access database and ask user what ingredient to add.
         //after that, reload ingredient and recipe list
         UserInputFrame inputFrame = new UserInputFrame();
-        inputFrame.userDisplayFrame(conn);
+        inputFrame.userDisplayFrame(conn, mFrame);
     }
-    private void userAddRecipe(Connection conn)
+    private void userAddRecipe(Connection conn, JFrame mFrame)
     {
         //access database and ask user what recipe to add.
         //after that, reload recipe list
         int length = MainFrame.getIngredientLength();
         System.out.println(length);
         UserRecipeInputFrame inputFrame = new UserRecipeInputFrame(length);
-        inputFrame.userDisplayFrame(conn);
-    }
-}
-
-class FrameTransition implements ActionListener
-{
-    private JDialog frame;
-    private int xSize = 0;
-    private int ySize = 0;
-    private int speed = 0;
-    public FrameTransition(JDialog f, int spd)
-    {
-        frame = f;
-        speed = spd;
-    }
-    @Override 
-    public void actionPerformed(ActionEvent arg0)
-    {
-        if (frame.getSize().width < 400)
-        {
-            xSize += speed; ySize += speed;
-            frame.setBounds(frame.getBounds().x-50, frame.getBounds().y-50, ySize, xSize);
-        }
+        inputFrame.userDisplayFrame(conn, mFrame);
     }
 }

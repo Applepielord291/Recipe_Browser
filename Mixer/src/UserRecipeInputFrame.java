@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -7,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.sql.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class UserRecipeInputFrame {
     private int ingredientLength = 0;
@@ -16,10 +18,12 @@ public class UserRecipeInputFrame {
     {
         ingredientLength = length;
     }
-    public void userDisplayFrame(Connection conn) 
+    public void userDisplayFrame(Connection conn, JFrame mFrame) 
     {
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
+
+        frame.setUndecorated(true);
 
         JTextPane ingredientNameTxt = new JTextPane();
 
@@ -32,11 +36,11 @@ public class UserRecipeInputFrame {
         displayIngredientBtns(conn, ingredientBg);
 
         frame.setResizable(false);
-        frame.setSize(700, 500);
-        frame.setLocationRelativeTo(null);
+        frame.setSize(0, 0);
+        frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
         ingredientBg.setLayout(new FlowLayout());
-        panel.setSize(700, 500);
+        panel.setSize(550, 550);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
@@ -57,11 +61,23 @@ public class UserRecipeInputFrame {
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
 
+        startFrameTransition(frame, false, 100);
+
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         panel.add(ingBgScroll);
         frame.setVisible(true);
+    }
+    private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
+    {
+        Timer timer = new Timer(1/2, new FrameTransition(frame, speed, 550));
+        timer.start();
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        scheduledExecutorService.schedule(() -> {
+            timer.stop();
+        }, 1, TimeUnit.SECONDS);
+        scheduledExecutorService.shutdown();
     }
     private void displayIngredientBtns(Connection con, JPanel p)
     {
