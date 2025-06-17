@@ -54,15 +54,19 @@ public class MainFrame {
         ImageIcon recipeSearchHover = new ImageIcon("Mixer\\Graphics\\Buttons\\RecipeSearchSelected.gif");
         ImageIcon settingsNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\SettingsNormal.png");
         ImageIcon settingsHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\SettingsHovered.gif");
+        ImageIcon exitNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
+        ImageIcon exitHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
 
         //Buttons
         //add images to buttons later
         JButton addRemoveMenu = new JButton(settingsNormal);
-        JButton exitBtn = new JButton("Exit");
+        JButton exitBtn = new JButton(exitNormal);
         JButton recipeSearchBtn = new JButton(recipeSearchNormal);
         recipeSearchBtn.setRolloverIcon(recipeSearchHover);
         recipeSearchBtn.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
         addRemoveMenu.setRolloverIcon(settingsHovered);
+        addRemoveMenu.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
+        addRemoveMenu.setRolloverIcon(exitHovered);
         addRemoveMenu.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
 
         //BufferedImages
@@ -178,7 +182,7 @@ public class MainFrame {
                 }
                 int currentRow = 0;
                 int currentBegin = 0;
-                String[] req = new String[10];
+                String[] req = new String[selectedIngredients.length];
                 
                 //split single string into multiple
                 //count number of commas?
@@ -189,6 +193,7 @@ public class MainFrame {
                     {
                         req[currentRow] = current.substring(currentBegin, i);
                         currentBegin = i+1;
+                        //System.out.print(req[currentRow]);
                         currentRow++;
                     }
                 }
@@ -204,7 +209,7 @@ public class MainFrame {
                 {
                     for (int j = 0; j < req.length; j++)
                     {
-                        if (tempSelIng[i]!=null && req[j]!=null && tempSelIng[i].toLowerCase().equals(req[j].toLowerCase()))
+                        if (tempSelIng[i]!=null && req[j]!=null && (!tempSelIng[i].equals("null") && !req[j].equals("null")) && tempSelIng[i].toLowerCase().equals(req[j].toLowerCase()))
                         {
                             tester = tester-1;
 
