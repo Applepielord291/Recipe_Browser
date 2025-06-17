@@ -66,8 +66,8 @@ public class MainFrame {
         recipeSearchBtn.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
         addRemoveMenu.setRolloverIcon(settingsHovered);
         addRemoveMenu.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
-        addRemoveMenu.setRolloverIcon(exitHovered);
-        addRemoveMenu.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 7));
+        exitBtn.setRolloverIcon(exitHovered);
+        exitBtn.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50, 255), 2));
 
         //BufferedImages
         BufferedImage ingredientBgListImg = new BufferedImage(bgList.getIconWidth(), bgList.getIconHeight(), BufferedImage.TYPE_INT_RGB);
@@ -428,6 +428,7 @@ class AddButtons implements ActionListener, MouseListener
     private String[] ingredientSelected = null;
     private ImageIcon ingredientBtnUnselected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientUnselected.png");
     private ImageIcon ingredientBtnHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientHovered.png");
+    private ImageIcon ingredientBtnSelected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientSelected.gif");
     public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s, String[] stringList)
     {
         panel = ingredList;
@@ -483,13 +484,13 @@ class AddButtons implements ActionListener, MouseListener
                         {
                             JButton selBtn = (JButton)t.getSource();
                             selBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200, 255), 4));
-                            selBtn.setIcon(ingredientBtnHovered);
+                            //selBtn.setIcon(ingredientBtnHovered);
                         }
                         public void mouseExited(MouseEvent t)
                         {
                             JButton selBtn = (JButton)t.getSource();
                             selBtn.setBorder(BorderFactory.createLineBorder(new Color(20, 20, 20, 255), 3));
-                            selBtn.setIcon(ingredientBtnUnselected);
+                            //selBtn.setIcon(ingredientBtnUnselected);
                         }
                     });
                     panel.add(ingredBtn[i]);
@@ -510,45 +511,29 @@ class AddButtons implements ActionListener, MouseListener
     }
     private void userClickedIngredient(ActionEvent e)
     {
-        ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService2.schedule(() -> {
-            JButton selectedBtn = (JButton)e.getSource();
-            String selectIng = selectedBtn.getText();
-            int fin = 0;
-            int speed = 0;
-            boolean x = false;
-            for (int i = 0; i < ingredientSelected.length; i++)
+        JButton selectedBtn = (JButton)e.getSource();
+        String selectIng = selectedBtn.getText();
+        boolean x = false;
+        for (int i = 0; i < ingredientSelected.length; i++)
+        {
+            for (int j = 0; j < ingredientSelected.length; j++)
             {
-                for (int j = 0; j < ingredientSelected.length; j++)
+                if (ingredientSelected[j] == selectIng)
                 {
-                    if (ingredientSelected[j] == selectIng)
-                    {
-                        ingredientSelected[j] = null;
-                        fin = -85;
-                        speed = -5;
-                        x = true;
-                    }
-                }
-            
-                if (ingredientSelected[i] == null && !x)
-                {
-                    ingredientSelected[i] = selectIng;
-                    fin = 85;
-                    speed = 5;
+                    ingredientSelected[j] = null;
+                    selectedBtn.setIcon(ingredientBtnUnselected);
                     x = true;
-                    break;
                 }
             }
-
-            Timer timer = new Timer(1, new ButtonSelected(selectedBtn, fin, speed));
-            timer.start();
-            ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-            scheduledExecutorService.schedule(() -> {
-                timer.stop();
-            }, 450, TimeUnit.MILLISECONDS);
-            scheduledExecutorService.shutdown();
-        }, 345, TimeUnit.MILLISECONDS);
-        scheduledExecutorService2.shutdown();
+        
+            if (ingredientSelected[i] == null && !x)
+            {
+                ingredientSelected[i] = selectIng;
+                selectedBtn.setIcon(ingredientBtnSelected);
+                x = true;
+                break;
+            }
+        }
     }
     @Override
     public void mouseEntered(MouseEvent e)
