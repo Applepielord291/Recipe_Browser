@@ -1,10 +1,10 @@
 import javax.swing.*;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.io.File;
 import java.sql.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,9 +25,13 @@ public class UserRecipeInputFrame {
 
         frame.setUndecorated(true);
 
-        JTextPane ingredientNameTxt = new JTextPane();
+        JTextField ingredientNameTxt = new JTextField();
+        JTextField linkTxt = new JTextField();
+
+        JFileChooser fileChooser = new JFileChooser();
 
         JButton confirmBtn = new JButton("Confirm");
+        JButton selectBtn = new JButton("Select Image");
 
         JPanel ingredientBg = new JPanel();
 
@@ -39,27 +43,30 @@ public class UserRecipeInputFrame {
         frame.setSize(0, 0);
         frame.setLocationRelativeTo(mFrame);
         panel.setLayout(null);
-        ingredientBg.setLayout(new FlowLayout());
+        ingredientBg.setLayout(new BoxLayout(ingredientBg, BoxLayout.Y_AXIS));
         panel.setSize(550, 550);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
         ingredientNameTxt.setBounds(20, 20, 200, 25);
         confirmBtn.setBounds(20, 50, 200, 25);
-        ingBgScroll.setBounds(325, 1, 300, 300);
+        ingBgScroll.setBounds(20, 100, 200, 300);
+        linkTxt.setBounds(250, 20, 200, 25);
+        selectBtn.setBounds(250, 60, 200, 25);
 
         frame.setModal(false);
         frame.addWindowFocusListener(new WindowFocusListener() {
             @Override
             public void windowLostFocus(WindowEvent e)
             {
-                frame.dispose();
+                
             }
             @Override
             public void windowGainedFocus(WindowEvent e) {}
         });
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
+        selectBtn.addActionListener(e -> userImageSearch(fileChooser, panel));
 
         startFrameTransition(frame, false, 100);
 
@@ -67,7 +74,25 @@ public class UserRecipeInputFrame {
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
         panel.add(ingBgScroll);
+        panel.add(linkTxt);
+        panel.add(selectBtn);
         frame.setVisible(true);
+    }
+    private void userImageSearch(JFileChooser fc, JPanel p)
+    {
+        int result = fc.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION)
+        {
+            File file = fc.getSelectedFile();
+            String selImage = file.getAbsolutePath();
+            ImageIcon selIcon = new ImageIcon(selImage);
+            JLabel selLbl = new JLabel(selIcon);
+            selLbl.setBounds(250, 150, 300, 300);
+            p.add(selLbl);
+            System.out.println(selLbl);
+            p.revalidate(); p.repaint();
+            System.out.println("done");
+        }
     }
     private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {
@@ -91,7 +116,8 @@ public class UserRecipeInputFrame {
             while (rs.next())
             {
                 ingredientList[i] = new JButton(rs.getString(2));
-                ingredientList[i].setPreferredSize(new Dimension(200, 35));
+                ingredientList[i].setMinimumSize(new Dimension(200, 35));
+                ingredientList[i].setMaximumSize(new Dimension(200, 35));
                 ingredientList[i].addActionListener(e -> userClickedIngredient(e));
                 p.add(ingredientList[i]);
                 i++;
@@ -116,10 +142,10 @@ public class UserRecipeInputFrame {
             }
         }
     }
-    private void userClickedConfirm(JTextPane txt, JDialog frame, Connection conn)
+    private void userClickedConfirm(JTextField ingredientNameTxt, JDialog frame, Connection conn)
     {
-        String res = txt.getText();
-        txt.setText("");
+        String res = ingredientNameTxt.getText();
+        ingredientNameTxt.setText("");
         String resultSelect = "";
         for (int i = 0; i < selectedIngredients.length; i++)
         {

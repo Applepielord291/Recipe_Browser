@@ -157,6 +157,7 @@ public class MainFrame {
                 ScheduledExecutorService scheduledExecutorService2 = Executors.newScheduledThreadPool(1);
                 scheduledExecutorService2.schedule(() -> {
                     iBtnListInit.stop();
+                    //buttons moved to their ideal position just in case timer dosent do that
                     addRemoveMenu.setBounds(addRemoveMenu.getBounds().x, 585, 175, 35);
                     exitBtn.setBounds(exitBtn.getBounds().x, 665, 125, 25);
                     recipeSearchBtn.setBounds(recipeSearchBtn.getBounds().x, 535, 245, 45);
