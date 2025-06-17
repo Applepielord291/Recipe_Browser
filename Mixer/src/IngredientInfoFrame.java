@@ -4,6 +4,7 @@ import java.sql.*;
 import javax.swing.*;
 
 public class IngredientInfoFrame {
+    private boolean canClose = false;
     public void DisplayFrame(JButton btn, JFrame mFrame, Connection con)
     {
         JDialog frame = new JDialog();
@@ -13,6 +14,8 @@ public class IngredientInfoFrame {
         JLabel recipeName = new JLabel(btn.getText());
         JLabel recipeRequirementsLbl = new JLabel("Recipe Requirements");
         JLabel recipeRequirements = new JLabel(getIng(con, btn));
+
+        JButton exitBtn = new JButton("exit");
 
         frame.setUndecorated(true);
 
@@ -25,15 +28,9 @@ public class IngredientInfoFrame {
         frame.setTitle("The Cooking Station");
 
         frame.setModal(false);
-        frame.addWindowFocusListener(new WindowFocusListener() {
-            @Override
-            public void windowLostFocus(WindowEvent e)
-            {
-                frame.dispose();
-            }
-            @Override
-            public void windowGainedFocus(WindowEvent e) {}
-        });
+        frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
+
+        exitBtn.addActionListener(e -> userClickedExit(frame));
 
         nameTitleLbl.setBounds(10, 10, 150, 25);
         recipeName.setBounds(10, 40, 150, 25);
@@ -47,6 +44,11 @@ public class IngredientInfoFrame {
         panel.add(recipeRequirements);
 
         frame.setVisible(true);
+    }
+    private void userClickedExit(JDialog frame)
+    {
+        canClose = true;
+        frame.dispose();
     }
     private String getIng(Connection con, JButton selBtn)
     {

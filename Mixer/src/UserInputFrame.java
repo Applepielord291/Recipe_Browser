@@ -1,7 +1,5 @@
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.sql.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -16,6 +14,7 @@ import javax.swing.*;
  */
 
 public class UserInputFrame {
+    private boolean canClose = false;
     //Frame and functionality developed by Shannon
     //Design made by Nigel
     public void userDisplayFrame(Connection conn, JFrame mFrame)
@@ -29,7 +28,9 @@ public class UserInputFrame {
         JTextField ingredientNameTxt = new JTextField();
         ingredientNameTxt.setBorder(BorderFactory.createEmptyBorder());
         ingredientNameTxt.setFont(new Font("Arial", 0, 20));
+
         JButton confirmBtn = new JButton("Confirm");
+        JButton exitBtn = new JButton("Exit");
 
         frame.setUndecorated(true);
 
@@ -43,29 +44,29 @@ public class UserInputFrame {
 
         ingredientNameTxt.setBounds(25, 65, 345, 65);
         confirmBtn.setBounds(30, 150, 200, 25);
+        exitBtn.setBounds(30, 190, 200, 25);
         bgLbl.setBounds(0, 0, 400, 400);
 
         frame.setModal(false);
-        frame.addWindowFocusListener(new WindowFocusListener() {
-            @Override
-            public void windowLostFocus(WindowEvent e)
-            {
-                frame.dispose();
-            }
-            @Override
-            public void windowGainedFocus(WindowEvent e) {}
-        });
+        frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
 
         confirmBtn.addActionListener(e -> userClickedConfirm(ingredientNameTxt, frame, conn));
+        exitBtn.addActionListener(e -> userClickedExit(frame));
 
         startFrameTransition(frame, false, 100);
 
         frame.add(panel);
         panel.add(ingredientNameTxt);
         panel.add(confirmBtn);
+        panel.add(exitBtn);
 
         panel.add(bgLbl);
         frame.setVisible(true);
+    }
+    private void userClickedExit(JDialog frame)
+    {
+        canClose = true;
+        frame.dispose();
     }
     private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {

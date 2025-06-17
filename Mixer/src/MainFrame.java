@@ -611,7 +611,7 @@ class OpeningSequence implements ActionListener
     private JButton addRemoveBtn;
     private JButton exitBtn;
     private JButton recipeSearchBtn;
-    private int ingredientBtnX;
+    //private int ingredientBtnX;
     private int recipeBgX = 1500;
     private int arY = 1000;
     private int eBtnY = 1000;
