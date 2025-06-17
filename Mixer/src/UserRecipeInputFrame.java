@@ -6,9 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.sql.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -208,7 +206,6 @@ public class UserRecipeInputFrame {
             PreparedStatement ps = conn.prepareStatement(command);
             ps.setString(1, res);
             ps.setString(2, resultSelect);
-            //ps.setBinaryStream(3, new FileInputStream(imgFilePath)); //no images for now
             ps.setString(3, linkTxt.getText());
             ps.setString(4,recipeIns.getText());
             ps.executeUpdate();
