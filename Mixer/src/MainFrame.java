@@ -197,7 +197,6 @@ public class MainFrame {
                     {
                         req[currentRow] = current.substring(currentBegin, i);
                         currentBegin = i+1;
-                        //System.out.print(req[currentRow]);
                         currentRow++;
                     }
                 }

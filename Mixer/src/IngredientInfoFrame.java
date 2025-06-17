@@ -38,9 +38,9 @@ public class IngredientInfoFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
 
         nameTitleLbl.setBounds(10, 10, 250, 45);
-        recipeName.setBounds(10, 50, 150, 25);
+        recipeName.setBounds(10, 60, 150, 25);
         recipeRequirements.setBounds(150, 10, 150, 25);
-        recipeRequirements.setBounds(150, 40, 200, 50);
+        recipeInstructionsLbl.setBounds(90, 10, 250, 45);
         exitBtn.setBounds(275, 450, 125, 25);
 
         frame.add(panel);
