@@ -106,7 +106,6 @@ public class UserInputFrame {
     {
         String res = ingredientNameTxt.getText();
         ingredientNameTxt.setText("");
-        System.out.println(res);
         try
         {
             String command = "INSERT INTO Ingredients (IngredientName) VALUES (?)";

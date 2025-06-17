@@ -176,7 +176,6 @@ public class AddRemoveFrame {
         //access database and ask user what recipe to add.
         //after that, reload recipe list
         int length = MainFrame.getIngredientLength();
-        System.out.println(length);
         UserRecipeInputFrame inputFrame = new UserRecipeInputFrame(length);
         inputFrame.userDisplayFrame(conn, mFrame);
     }
