@@ -24,15 +24,14 @@ public class MainFrame {
     private final String dbUrl = "jdbc:ucanaccess://Mixer\\Database\\Tool Mixer.accdb";
     private static JButton[] ingredientListBtn = null; //list of ingredientss
     private JButton[] recipeListBtn = null; //list of recipes
-    //private int ingredientInitX = -500; private int ingredientInitY = 1000; //for ingredList
     private JFrame frame = new JFrame();
     private String[] selectedIngredients = null;
 
     //This Method displays the Frame
     //ONLY CALL ON THIS FUNCTION WHEN YOU NEED THE FRAME TO BE DISPLAYED 
     public void DisplayMainFrame() throws Exception {
-        //Essential Components
         
+        //Essential Components
         JPanel panel = new JPanel();
         JPanel recipeList = new JPanel();
 
@@ -45,8 +44,6 @@ public class MainFrame {
         
         //ScrollBars
         JScrollBar sb = new JScrollBar();
-
-        
 
         //ImageIcons
         ImageIcon bgList = new ImageIcon("Mixer\\Graphics\\Background\\ListBg.png");
@@ -104,7 +101,6 @@ public class MainFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         addRemoveMenu.addActionListener(e -> displayAddRemoveMenu(connection));
         recipeSearchBtn.addActionListener(e -> searchForValidRecipes(connection, recipeList));
-
         sb.addMouseWheelListener(new scrollListener(ingredientListBtn));
 
         //Setting component positions
@@ -132,6 +128,7 @@ public class MainFrame {
         panel.add(addRemoveMenu);
         panel.add(recipeSearchBtn);
         
+        //always add last
         panel.add(bgAnim);
         frame.setVisible(true);
 
@@ -168,6 +165,7 @@ public class MainFrame {
             scheduledExecutorService3.shutdown();
         }, 525, TimeUnit.MILLISECONDS); //init sizeout frame anim stops
     }
+    //searches for valid recipes given the ingredients selected
     private void searchForValidRecipes(Connection con, JPanel recipePanel)
     {
         int count = 0;
@@ -200,7 +198,7 @@ public class MainFrame {
                         currentRow++;
                     }
                 }
-                int tester = 0;
+                int tester = 0; //to check recipe valid
                 for (int i = 0; i < req.length; i++)
                 {
                     if (req[i] != null) 
@@ -241,10 +239,6 @@ public class MainFrame {
                     //sql command to find row with exact same recipe ingredients and uhh just take the name and add it as the button in the frame
                     count = count+1;
                 }
-                else
-                {
-                    //just end it here GRAHHH
-                }
             }
         }
         catch(Exception e)
@@ -252,25 +246,25 @@ public class MainFrame {
             e.printStackTrace();
         }
     }
+    //When recipe btn on the right is clicked, window popup displaying more information about the recipe
     private void moreInfoIngredient(ActionEvent e, Connection connection)
     {
         IngredientInfoFrame ingInfo = new IngredientInfoFrame();
         ingInfo.DisplayFrame((JButton)e.getSource(), frame, connection);
     }
+    //Display addremove menu which manages database adding/deleting
     private void displayAddRemoveMenu(Connection con)
     {
         AddRemoveFrame addRem = new AddRemoveFrame();
         addRem.DisplayFrame(con, frame);
     }
-    public void reloadFrame()
-    {
-        frame.dispose();
-    }
+    //return length of ingredient list
     public static int getIngredientLength()
     {
         return ingredientListBtn.length;
     }
 
+    //initialize list of ingredient buttons in a cool way
     private void DisplayIngredientBtns(JPanel panel, JLabel bgAnim, JButton[] btnList, Connection conn, JLabel listBg, String command, String column, int initX, JScrollBar sb)
     {
         Timer timer = new Timer(1/10000, new AddButtons(panel, bgAnim, btnList, conn, listBg, command, column, initX, sb, selectedIngredients));
@@ -288,27 +282,27 @@ public class MainFrame {
         scheduledExecutorService.shutdown();
         
     }
+
+    //rotates the listBg picture 10 degrees
     private BufferedImage rotateAnimateList(BufferedImage image, int degrees)
     {
-        // Calculate the new size of the image based on the angle of rotaion
+        //Image size calc
         double radians = Math.toRadians(degrees);
         double sin = Math.abs(Math.sin(radians));
         double cos = Math.abs(Math.cos(radians));
         int newWidth = (int) Math.round(image.getWidth() * cos + image.getHeight() * sin);
         int newHeight = (int) Math.round(image.getWidth() * sin + image.getHeight() * cos);
 
-        // Create a new image
         BufferedImage rotate = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = rotate.createGraphics();
-        // Calculate the "anchor" point around which the image will be rotated
+        //Anchor point
         int x = (newWidth - image.getWidth()) / 2;
         int y = (newHeight - image.getHeight()) / 2;
-        // Transform the origin point around the anchor point
+        //rotate around anchor
         AffineTransform at = new AffineTransform();
         at.setToRotation(radians, x + (image.getWidth() / 2), y + (image.getHeight() / 2));
         at.translate(x, y);
         g2d.setTransform(at);
-        // Paint the originl image
         g2d.drawImage(image, 0, 0, null);
         g2d.dispose();
         return rotate;
@@ -362,6 +356,8 @@ public class MainFrame {
         }
     }
 }
+//scroll listener for the ingredient buttons array
+//tracks the scrollbars state and moves the buttons depending on the scroll state
 class scrollListener implements MouseWheelListener
 {
     private JButton[] ingredBtn = null;
@@ -395,6 +391,8 @@ class scrollListener implements MouseWheelListener
         }
     }
 }
+
+//opening animation for the ingredient animations
 class InitIngredientBg implements ActionListener
 {
     private JLabel bgList;
@@ -412,6 +410,10 @@ class InitIngredientBg implements ActionListener
         bgList.setBounds(xPos, yPos, bgList.getWidth(), bgList.getHeight());
     }
 }
+
+//Adds x buttons (number of buttons depends on ingredients in database)
+//uhh yeah its ina class so that I can give the buttons cool new features (visual)
+//RAHHH I LOVE CONSTRUCTORS
 class AddButtons implements ActionListener, MouseListener
 {
     private JButton[] ingredBtn = null;
@@ -431,7 +433,6 @@ class AddButtons implements ActionListener, MouseListener
     private ResultSet rs = null;
     private String[] ingredientSelected = null;
     private ImageIcon ingredientBtnUnselected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientUnselected.png");
-    //private ImageIcon ingredientBtnHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientHovered.png");
     private ImageIcon ingredientBtnSelected = new ImageIcon("Mixer\\Graphics\\Buttons\\IngredientSelected.gif");
     public AddButtons(JPanel ingredList, JLabel bg, JButton[] ingredientBtn, Connection conn, JLabel listB, String com, String colName, int x, JScrollBar s, String[] stringList)
     {
@@ -452,6 +453,7 @@ class AddButtons implements ActionListener, MouseListener
     @Override
     public void actionPerformed(ActionEvent arg0)
     {
+        //initialize x amnount of buttons
         if (i < ingredBtn.length-1)
         {
             panel.remove(bgAnim);
@@ -513,6 +515,7 @@ class AddButtons implements ActionListener, MouseListener
             }
         }
     }
+    //visual change when user clicks ingredient button
     private void userClickedIngredient(ActionEvent e)
     {
         JButton selectedBtn = (JButton)e.getSource();
@@ -539,6 +542,8 @@ class AddButtons implements ActionListener, MouseListener
             }
         }
     }
+    //required methods n stuff
+    //hover effect to make button look cooler
     @Override
     public void mouseEntered(MouseEvent e)
     {
@@ -559,24 +564,7 @@ class AddButtons implements ActionListener, MouseListener
     public void mousePressed(MouseEvent e) {}
 }
 
-class ButtonSelected implements ActionListener
-{
-    private JButton selBtn;
-    private int finalX;
-    private int speed;
-    public ButtonSelected(JButton btn, int fin, int spd)
-    {
-        selBtn = btn;
-        finalX = selBtn.getBounds().x;
-        speed = spd;
-    }
-    @Override
-    public void actionPerformed(ActionEvent arg0)
-    {
-        finalX += speed;
-        selBtn.setBounds(finalX, selBtn.getBounds().y, 300, 35);
-    }
-}
+//frame sizes up (cool opening animation)
 class SizeOut implements ActionListener
 {
     private JFrame frame;
@@ -604,6 +592,8 @@ class SizeOut implements ActionListener
         frame.setBounds(100, 100, xSize, ySize);
     }
 }
+
+//MianFrame opening sequence, where all the components slide into place!
 class OpeningSequence implements ActionListener
 {
     private JButton[] btn;
@@ -631,12 +621,14 @@ class OpeningSequence implements ActionListener
         mainFrameBtnsAnim();
         recipePanelAnim();
     }
+    //recipe panel animation, moves leeft
     private void recipePanelAnim()
     {
         if (recipePanel.getBounds().x > 875) recipeBgX -= 50;
         else recipeBgX = 875;
         recipePanel.setBounds(recipeBgX, recipePanel.getBounds().y, 300, 500);
     }
+    //ingredient button animation, moves right
     private void ingredientBtnsAnim()
     {
         for (int i = 0; i < btn.length && btn[i] != null; i++)
@@ -645,6 +637,7 @@ class OpeningSequence implements ActionListener
             else btn[i].setBounds(btn[i].getBounds().x, btn[i].getBounds().y, 300, 35);
         }
     }
+    //main frame buttons, moves up
     private void mainFrameBtnsAnim()
     {
         if (addRemoveBtn.getBounds().y > 585) arY -= 30;
@@ -670,5 +663,5 @@ class OpeningSequence implements ActionListener
  * make all the frames and buttons look better
  * make transition animation when user launches program
  * add searching for searching for ingredient buttons
- * 
+ * nah nvm
  */

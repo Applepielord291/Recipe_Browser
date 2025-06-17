@@ -5,6 +5,7 @@
  */
 
  //Edit: This script may be redundant, however ill keep it just in case.
+ //code
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -12,6 +13,7 @@ public class Main {
         MainFrame mainFrame = new MainFrame();
         mainFrame.DisplayMainFrame();
     }
+    //reloads program
     public void reloadProgram()
     {
         try

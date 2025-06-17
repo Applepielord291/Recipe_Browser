@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Font;
 import java.sql.*;
 import javax.swing.*;
@@ -10,13 +11,16 @@ public class IngredientInfoFrame {
         ImageIcon exitHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
         ImageIcon recipeNameIcon = new ImageIcon("Mixer\\Graphics\\Labels\\RecipeName.png");
         ImageIcon recipeInstructions = new ImageIcon("Mixer\\Graphics\\Labels\\Instructions.png");
+        ImageIcon recipeLinkIcon = new ImageIcon("Mixer\\Graphics\\Labels\\RecipeLink.png");
+        ImageIcon recipeInfoBg = new ImageIcon("Mixer\\Graphics\\Background\\RecipeInfoBg.png");
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
         JLabel nameTitleLbl = new JLabel(recipeNameIcon);
         JLabel recipeName = new JLabel(btn.getText());
         JLabel recipeInstructionsLbl = new JLabel(recipeInstructions);
-        JLabel recipeLinkLbl = new JLabel("Recipe Link");
+        JLabel recipeLinkLbl = new JLabel(recipeLinkIcon);
+        JLabel frameBg = new JLabel(recipeInfoBg);
         JTextField recipeLink = new JTextField();
         JTextPane recipeRequirements = new JTextPane();
         recipeRequirements.setEditable(false);
@@ -24,6 +28,7 @@ public class IngredientInfoFrame {
         recipeRequirements.setText(getIng(con, btn));
 
         recipeName.setFont(new Font("Arial", 0, 20));
+        recipeName.setForeground(new Color(255, 255, 255, 255));
         recipeRequirements.setFont(new Font("Arial", 0, 20));
        // recipeLink.setFont(new Font("Arial", 0, 16));
 
@@ -48,13 +53,14 @@ public class IngredientInfoFrame {
         exitBtn.addActionListener(e -> userClickedExit(frame));
         recipeLink.setText(getLink(con, recipeLink, btn));
 
-        nameTitleLbl.setBounds(10, 10, 250, 45);
+        nameTitleLbl.setBounds(20, 10, 250, 45);
         recipeName.setBounds(20, 70, 300, 25);
-        recipeRequirementsScroll.setBounds(300, 70, 250, 150);
-        recipeInstructionsLbl.setBounds(300, 10, 250, 45);
+        recipeRequirementsScroll.setBounds(425, 70, 250, 150);
+        recipeInstructionsLbl.setBounds(425, 10, 250, 45);
         exitBtn.setBounds(275, 450, 125, 25);
-        recipeLinkLbl.setBounds(10, 250, 250, 25);
-        recipeLink.setBounds(10, 350, 250, 25);
+        recipeLinkLbl.setBounds(20, 250, 250, 45);
+        recipeLink.setBounds(20, 300, 250, 25);
+        frameBg.setBounds(0, 0, 700, 500);
 
         frame.add(panel);
 
@@ -65,6 +71,8 @@ public class IngredientInfoFrame {
         panel.add(exitBtn);
         panel.add(recipeLinkLbl);
         panel.add(recipeLink);
+
+        panel.add(frameBg);
 
         frame.setVisible(true);
         
