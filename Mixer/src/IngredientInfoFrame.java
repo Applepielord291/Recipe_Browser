@@ -1,3 +1,4 @@
+import java.awt.Font;
 import java.sql.*;
 import javax.swing.*;
 
@@ -5,15 +6,21 @@ public class IngredientInfoFrame {
     private boolean canClose = false;
     public void DisplayFrame(JButton btn, JFrame mFrame, Connection con)
     {
+        ImageIcon exitNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
+        ImageIcon exitHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
+        ImageIcon recipeNameIcon = new ImageIcon("Mixer\\Graphics\\Labels\\RecipeName.png");
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
-        JLabel nameTitleLbl = new JLabel("Recipe Name:");
+        JLabel nameTitleLbl = new JLabel(recipeNameIcon);
         JLabel recipeName = new JLabel(btn.getText());
-        JLabel recipeRequirementsLbl = new JLabel("Recipe Requirements");
+        JLabel recipeInstructionsLbl = new JLabel("Recipe Instructions");
         JLabel recipeRequirements = new JLabel(getIng(con, btn));
 
-        JButton exitBtn = new JButton("exit");
+        recipeName.setFont(new Font("Arial", 0, 20));
+
+        JButton exitBtn = new JButton(exitNormal);
+        exitBtn.setRolloverIcon(exitHovered);
 
         frame.setUndecorated(true);
 
@@ -30,16 +37,18 @@ public class IngredientInfoFrame {
 
         exitBtn.addActionListener(e -> userClickedExit(frame));
 
-        nameTitleLbl.setBounds(10, 10, 150, 25);
-        recipeName.setBounds(10, 40, 150, 25);
-        recipeRequirementsLbl.setBounds(150, 10, 150, 25);
+        nameTitleLbl.setBounds(10, 10, 250, 45);
+        recipeName.setBounds(10, 50, 150, 25);
+        recipeRequirements.setBounds(150, 10, 150, 25);
         recipeRequirements.setBounds(150, 40, 200, 50);
+        exitBtn.setBounds(275, 450, 125, 25);
 
         frame.add(panel);
         panel.add(nameTitleLbl);
         panel.add(recipeName);
-        panel.add(recipeRequirementsLbl);
+        panel.add(recipeInstructionsLbl);
         panel.add(recipeRequirements);
+        panel.add(exitBtn);
 
         frame.setVisible(true);
     }

@@ -6,7 +6,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.sql.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -110,7 +112,7 @@ public class UserRecipeInputFrame {
             imgFilePath = file.getAbsolutePath();
             ImageIcon selIcon = new ImageIcon(imgFilePath);
             JLabel selLbl = new JLabel(selIcon);
-            selLbl.setBounds(315, 190, 200, 200);
+            selLbl.setBounds(315, 180, 200, 200);
             p.remove(bg);
             p.add(selLbl);
             p.add(bg);
@@ -174,8 +176,6 @@ public class UserRecipeInputFrame {
                 {
                     selectedIngredients[j] = null;
                     //place unselected icon here
-                    selBtn.setMinimumSize(new Dimension(200, 35));
-                    selBtn.setMaximumSize(new Dimension(200, 35));
                     selBtn.setIcon(btnIconUnsel);
                     x = true;
                 }
@@ -185,8 +185,6 @@ public class UserRecipeInputFrame {
             {
                 selectedIngredients[i] = txt;
                 //place selected icon here
-                selBtn.setMinimumSize(new Dimension(200, 35));
-                selBtn.setMaximumSize(new Dimension(200, 35));
                 selBtn.setIcon(btnIconSel);
                 x = true;
                 break;
@@ -204,8 +202,6 @@ public class UserRecipeInputFrame {
                 resultSelect += selectedIngredients[i] + ",";
             }
         }
-        System.out.println(resultSelect);
-        System.out.println(res);
         try
         {
             String command = "INSERT INTO RecipeTable (RecipeName, Requirements, RecipeLink, RecipeInstructions) VALUES (?, ?, ?, ?)";
