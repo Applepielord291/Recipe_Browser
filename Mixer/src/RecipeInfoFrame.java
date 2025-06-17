@@ -3,42 +3,57 @@ import java.awt.Font;
 import java.sql.*;
 import javax.swing.*;
 
-public class IngredientInfoFrame {
-    private boolean canClose = false;
+/* Nigel Garcia
+ * June 16 2025
+ * Recipe Info Frame
+ * displays recipe info frame, sadly no images :(
+ */
+
+public class RecipeInfoFrame {
+    //JDialogs are goofy and vanish when user clicks off, gotta make a boolean value that only trigger swhen the user clicks the exit btn (they are never free)
+    private boolean canClose = false; 
+    //DIsplays JDialog
     public void DisplayFrame(JButton btn, JFrame mFrame, Connection con)
     {
+        //ImageIcons
         ImageIcon exitNormal = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitNormal.png");
         ImageIcon exitHovered = new ImageIcon("Mixer\\Graphics\\Buttons\\ExitHovered.gif");
         ImageIcon recipeNameIcon = new ImageIcon("Mixer\\Graphics\\Labels\\RecipeName.png");
         ImageIcon recipeInstructions = new ImageIcon("Mixer\\Graphics\\Labels\\Instructions.png");
         ImageIcon recipeLinkIcon = new ImageIcon("Mixer\\Graphics\\Labels\\RecipeLink.png");
         ImageIcon recipeInfoBg = new ImageIcon("Mixer\\Graphics\\Background\\RecipeInfoBg.png");
+
+        //Essentials
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
+        //JLabels
         JLabel nameTitleLbl = new JLabel(recipeNameIcon);
         JLabel recipeName = new JLabel(btn.getText());
         JLabel recipeInstructionsLbl = new JLabel(recipeInstructions);
         JLabel recipeLinkLbl = new JLabel(recipeLinkIcon);
         JLabel frameBg = new JLabel(recipeInfoBg);
+
+        //text fields, stuff along the liness
         JTextField recipeLink = new JTextField();
         JTextPane recipeRequirements = new JTextPane();
         recipeRequirements.setEditable(false);
         JScrollPane recipeRequirementsScroll = new JScrollPane(recipeRequirements);
         recipeRequirements.setText(getIng(con, btn));
 
+        //font setting
         recipeName.setFont(new Font("Arial", 0, 20));
         recipeName.setForeground(new Color(255, 255, 255, 255));
         recipeRequirements.setFont(new Font("Arial", 0, 20));
-       // recipeLink.setFont(new Font("Arial", 0, 16));
 
+        //buttons
         JButton exitBtn = new JButton(exitNormal);
         exitBtn.setRolloverIcon(exitHovered);
 
+        //hide window frame border
         frame.setUndecorated(true);
-        
-        recipeLink.revalidate(); recipeLink.repaint();
 
+        //essential frame stuff
         frame.setResizable(false);
         frame.setSize(700, 500);
         frame.setLocationRelativeTo(mFrame);
@@ -47,12 +62,15 @@ public class IngredientInfoFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
+        //no blocking
         frame.setModal(false);
         frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
 
+        //listeners
         exitBtn.addActionListener(e -> userClickedExit(frame));
         recipeLink.setText(getLink(con, recipeLink, btn));
 
+        //set bounds my beloved
         nameTitleLbl.setBounds(20, 10, 250, 45);
         recipeName.setBounds(20, 70, 300, 25);
         recipeRequirementsScroll.setBounds(425, 70, 250, 150);
@@ -62,8 +80,8 @@ public class IngredientInfoFrame {
         recipeLink.setBounds(20, 300, 250, 25);
         frameBg.setBounds(0, 0, 700, 500);
 
+        //adding stuff
         frame.add(panel);
-
         panel.add(nameTitleLbl);
         panel.add(recipeName);
         panel.add(recipeInstructionsLbl);
@@ -72,17 +90,19 @@ public class IngredientInfoFrame {
         panel.add(recipeLinkLbl);
         panel.add(recipeLink);
 
+        //always add last
         panel.add(frameBg);
-
         frame.setVisible(true);
         
     }
+    //dispose frame when user clicks exit
     private void userClickedExit(JDialog frame)
     {
         canClose = true;
         frame.addWindowFocusListener(new DialogCloseManager(frame, canClose));
         frame.dispose();
     }
+    //return Recipe instructions
     private String getIng(Connection con, JButton selBtn)
     {
         try
@@ -102,6 +122,7 @@ public class IngredientInfoFrame {
             return null;
         }
     }
+    //return recipe link
     private String getLink(Connection con, JTextField link, JButton selBtn)
     {
         try

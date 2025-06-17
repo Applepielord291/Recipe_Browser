@@ -249,7 +249,7 @@ public class MainFrame {
     //When recipe btn on the right is clicked, window popup displaying more information about the recipe
     private void moreInfoIngredient(ActionEvent e, Connection connection)
     {
-        IngredientInfoFrame ingInfo = new IngredientInfoFrame();
+        RecipeInfoFrame ingInfo = new RecipeInfoFrame();
         ingInfo.DisplayFrame((JButton)e.getSource(), frame, connection);
     }
     //Display addremove menu which manages database adding/deleting

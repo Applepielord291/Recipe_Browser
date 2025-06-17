@@ -3,6 +3,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JDialog;
 
+/* Nigel Garcia
+ * June 16 2025
+ * Frame transition
+ * the starting animation for some of the JDialogs, where the frame scales up
+ */
+
 class FrameTransition implements ActionListener
 {
     private JDialog frame;
@@ -16,6 +22,7 @@ class FrameTransition implements ActionListener
         speed = spd;
         endGoal = goal;
     }
+    //actual animation
     @Override 
     public void actionPerformed(ActionEvent arg0)
     {

@@ -9,27 +9,38 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.swing.*;
+
 /* Script created by Nigel Garcia
- * May 15 2025
+ * June 15 2025
+ * AddRemoveFrame
+ * main menu for all your ingredient and recipe manipulation needs
  */
 
 public class AddRemoveFrame {
+    //display frame
     public void DisplayFrame(Connection connection, JFrame mFrame)
     {
+        //frame essentials
         JDialog frame = new JDialog();
         JPanel panel = new JPanel();
 
+        //hide window broder thing
         frame.setUndecorated(true);
 
+        //JButtons
         JButton addIngredientBtn = new JButton("Add ingredient");
         JButton addRecipeBtn = new JButton("Add Recipe");
         JButton removeIngredientBtn = new JButton("Remove Ingredient");
         JButton removeRecipeBtn = new JButton("Remove Recipe");
         JButton cancelBtn = new JButton("cancel");
 
+        //image icon
         ImageIcon bgAnim = new ImageIcon("Mixer\\Graphics\\Background\\AddRemoveBg.gif");
+
+        //jaleebls
         JLabel bgAnimLbl = new JLabel(bgAnim);
 
+        //frame essentials
         frame.setResizable(false);
         frame.setSize(0, 0);
         frame.setLocationRelativeTo(mFrame);
@@ -38,12 +49,14 @@ public class AddRemoveFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setTitle("The Cooking Station");
 
+        //listeners
         addIngredientBtn.addActionListener(e -> userAddIngredient(connection, mFrame));
         addRecipeBtn.addActionListener(e -> userAddRecipe(connection, mFrame));
         removeIngredientBtn.addActionListener(e -> userRemove(true, connection, mFrame));
         removeRecipeBtn.addActionListener(e -> userRemove(false, connection, mFrame));
         cancelBtn.addActionListener(e -> userClickedCancel(frame));
 
+        //window listener but easy to click of and die now (different from the DialogClosemanager class)
         frame.setModal(false);
         frame.addWindowFocusListener(new WindowFocusListener() {
             @Override
@@ -55,6 +68,7 @@ public class AddRemoveFrame {
             public void windowGainedFocus(WindowEvent e) {}
         });
 
+        //setting the bounds
         addIngredientBtn.setBounds(100, 40, 200, 35);
         addRecipeBtn.setBounds(100, 80, 200, 35);
         removeIngredientBtn.setBounds(100, 120, 200, 35);
@@ -62,14 +76,17 @@ public class AddRemoveFrame {
         cancelBtn.setBounds(100, 200, 200, 35);
         bgAnimLbl.setBounds(-150, -50, 700, 500);
 
+        //starting the zoom animation
         startFrameTransition(frame, false, 100);
 
+        //function that changes button visuals and visual behaviour
         changeButtonVisual(addIngredientBtn);
         changeButtonVisual(addRecipeBtn);
         changeButtonVisual(removeIngredientBtn);
         changeButtonVisual(removeRecipeBtn);
         changeButtonVisual(cancelBtn);
 
+        //frame adding
         frame.add(panel);
         panel.add(addIngredientBtn);
         panel.add(addRecipeBtn);
@@ -81,6 +98,8 @@ public class AddRemoveFrame {
         panel.add(bgAnimLbl);
         frame.setVisible(true);
     }
+    //function that changes how the button works\
+    //also changes hover buttons n borders n stuff
     private void changeButtonVisual(JButton btn)
     {
         btn.setContentAreaFilled(false);
@@ -112,6 +131,8 @@ public class AddRemoveFrame {
             }
         });
     }
+    //timer for frame transition
+    //I love timers
     private void startFrameTransition(JDialog frame, boolean isQuit, int speed)
     {
         Timer timer = new Timer(1/2, new FrameTransition(frame, speed, 400));
@@ -122,10 +143,12 @@ public class AddRemoveFrame {
         }, 1, TimeUnit.SECONDS);
         scheduledExecutorService.shutdown();
     }
+    //cancel click
     private void userClickedCancel(JDialog frame)
     {
         frame.dispose();
     }
+    //displays user remove frame
     private void userRemove(boolean which, Connection con, JFrame mFrame)
     {
         if (which)
@@ -139,6 +162,7 @@ public class AddRemoveFrame {
             uRemove.DisplayFrame();
         }
     }
+    //displays user add ingredient frame
     private void userAddIngredient(Connection conn, JFrame mFrame)
     {
         //access database and ask user what ingredient to add.
@@ -146,6 +170,7 @@ public class AddRemoveFrame {
         UserInputFrame inputFrame = new UserInputFrame();
         inputFrame.userDisplayFrame(conn, mFrame);
     }
+    //displays user add recipe frame
     private void userAddRecipe(Connection conn, JFrame mFrame)
     {
         //access database and ask user what recipe to add.
